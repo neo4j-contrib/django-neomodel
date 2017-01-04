@@ -1,5 +1,5 @@
-neomodel for Django (WIP)
-=========================
+WORK IN PROGRESS
+================
 
 
 .. image:: https://raw.githubusercontent.com/robinedwards/neomodel/master/doc/source/_static/neomodel-300.png
