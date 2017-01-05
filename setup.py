@@ -12,7 +12,7 @@ setup(
     license='MIT',
     packages=find_packages(),
     keywords='neo4j django plugin neomodel',
-    install_requires=['neomodel>=3.1.0', 'django>=1.9'],
+    install_requires=['neomodel>=3.0.3', 'django>=1.9'],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         'Intended Audience :: Developers',
