@@ -12,8 +12,6 @@ setup(
     license='MIT',
     packages=find_packages(),
     keywords='neo4j django plugin neomodel',
-    tests_require=['nose==1.3.7'],
-    test_suite='nose.collector',
     install_requires=['neomodel>=3.0.3', 'django>=1.9'],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
