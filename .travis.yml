@@ -9,7 +9,7 @@ python:
 install: "python setup.py install"
 script:
   - cd tests
-  - python manage.py tests
+  - python manage.py test
 env:
   - NEO4J_VERSION="3.1.0"
 before_install:
