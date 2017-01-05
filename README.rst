@@ -1,22 +1,36 @@
+Django Neomodel - Neo4j for Django
+==================================
+
 WORK IN PROGRESS
 ================
-
-TODO
-====
-
-2. signals integration
-3. management commands: change password?
-4. test utils w transaction / reset
-5. django debug tool bar interop (w rest interface)
-6. model form integration
 
 .. image:: https://raw.githubusercontent.com/robinedwards/neomodel/master/doc/source/_static/neomodel-300.png
    :alt: neomodel
 
-Allows you to use the neo4j_ graph database through neomodel_ with Django.
+This module allows you to use the neo4j_ graph database with Django using neomodel_
 
 .. _neo4j: https://www.neo4j.org
 .. _neomodel: http://neomodel.readthedocs.org
+
+Settings
+========
+The following settings are available with default value shown::
+
+   NEOMODEL_NEO4J_BOLT_URL = 'bolt://neo4j:neo4j@localhost:7687'
+   NEOMODEL_SIGNALS = True
+
+Signals
+=======
+Signals work as expected with `StructuredNode` sub-classes::
+
+    from django.db.models import signals
+    from neomodel import StructuredNode, StringProperty
+
+    class Book(StructuredNode):
+      title = StringProperty(unique_index=True)
+
+    signals.post_save.connect(your_func, sender=Library)
+
 
 Management Commands
 ===================
