@@ -12,6 +12,9 @@ This module allows you to use the neo4j_ graph database with Django using neomod
 .. _neo4j: https://www.neo4j.org
 .. _neomodel: http://neomodel.readthedocs.org
 
+.. image:: https://secure.travis-ci.org/robinedwards/django-neomodel.png
+    :target: https://secure.travis-ci.org/robinedwards/django-neomodel/
+
 Getting started
 ===============
 
