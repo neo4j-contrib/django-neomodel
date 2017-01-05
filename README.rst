@@ -1,5 +1,5 @@
-Django Neomodel - Neo4j for Django
-==================================
+Django Neomodel
+===============
 
 WORK IN PROGRESS
 ================
@@ -11,6 +11,45 @@ This module allows you to use the neo4j_ graph database with Django using neomod
 
 .. _neo4j: https://www.neo4j.org
 .. _neomodel: http://neomodel.readthedocs.org
+
+Getting started
+===============
+
+First install the module::
+
+    $ pip install django_neomodel
+
+Add the following settings to your `settings.py`::
+
+    NEOMODEL_NEO4J_BOLT_URL = os.environ.get('NEO4J_BOLT_URL', 'bolt://neo4j:test@localhost:7687')
+
+    # Make sure django_neomodel comes before your own apps
+    INSTALLED_APPS = (
+        # django.contrib.auth etc
+        'django_neomodel',
+        'yourapp'
+    )
+
+Write your first node definition in `yourapp/models.py`::
+
+    from neomodel import StructuredNode, StringProperty, DateProperty
+
+    class Book(StructuredNode):
+        title = StringProperty(unique_index=True)
+        published = DateProperty()
+
+Create any constraints or indexes for your labels (this needs to be done every time you update your models)::
+
+    $ python manage.py install_labels
+
+Now in a view `yourapp/views.py`::
+
+    from .models import Book
+
+    def get_books(request):
+        return render('yourapp/books.html', request, {'books': Book.nodes.all()})
+
+And you're ready to go. Don't forget to check the neomodel_ documentation.
 
 Settings
 ========
