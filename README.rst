@@ -80,7 +80,7 @@ install_labels
 --------------
 Setup constraints and indexes on labels to match your node definitions. This should be executed after any schema changes::
 
-   $ python manage.py install_all_labels
+   $ python manage.py install_labels
    Setting up labels and constraints...
 
    + Creating unique constraint for title on label Book for class tests.someapp.models.Book
