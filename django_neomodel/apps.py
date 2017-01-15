@@ -12,6 +12,7 @@ class NeomodelConfig(AppConfig):
 
     def read_settings(self):
         config.DATABASE_URL = getattr(settings, 'NEOMODEL_NEO4J_BOLT_URL', config.DATABASE_URL)
+        config.FORCE_TIMEZONE = getattr(settings, 'NEOMODEL_FORCE_TIMEZONE', False)
 
     def ready(self):
         self.read_settings()

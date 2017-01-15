@@ -1,8 +1,5 @@
-Django Neomodel
-===============
-
-WORK IN PROGRESS
-================
+Django Neomodel (beta)
+======================
 
 .. image:: https://raw.githubusercontent.com/robinedwards/neomodel/master/doc/source/_static/neomodel-300.png
    :alt: neomodel
@@ -18,7 +15,7 @@ This module allows you to use the neo4j_ graph database with Django using neomod
 Getting started
 ===============
 
-First install the module::
+Install the module::
 
     $ pip install django_neomodel
 
@@ -41,7 +38,8 @@ Write your first node definition in `yourapp/models.py`::
         title = StringProperty(unique_index=True)
         published = DateProperty()
 
-Create any constraints or indexes for your labels *this needs to be done every time you update your models*::
+Create any constraints or indexes for your labels. This needs to be done when you change your node definitions
+much like `manage.py migrate`::
 
     $ python manage.py install_labels
 
@@ -54,12 +52,36 @@ Now in a view `yourapp/views.py`::
 
 And you're ready to go. Don't forget to check the neomodel_ documentation.
 
+Model forms
+===========
+
+Switch the base class from `StructuredNode` to `DjangoNode` and add a 'Meta' class::
+
+    from django_neomodel import DjangoNode
+
+    class Book(DjangoNode):
+        title = StringProperty(unique_index=True)
+        created = DateTimeProperty(default=datetime.utcnow)
+
+        class Meta:
+            app_label = 'someapp'
+
+Create a model form class as usual::
+
+    class BookForm(ModelForm):
+        class Meta:
+            model = Book
+            fields = ['title']
+
+Multiple choice and relationships are not supported yet.
+
 Settings
 ========
 The following settings are available with default value shown::
 
    NEOMODEL_NEO4J_BOLT_URL = 'bolt://neo4j:neo4j@localhost:7687'
    NEOMODEL_SIGNALS = True
+   NEOMODEL_FORCE_TIMEZONE = False
 
 Signals
 =======

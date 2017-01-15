@@ -1,5 +1,8 @@
+from datetime import datetime
+
 from django.db import models
-from neomodel import StructuredNode, StringProperty
+from django_neomodel import DjangoNode
+from neomodel import StringProperty, DateTimeProperty
 
 
 class Library(models.Model):
@@ -9,5 +12,9 @@ class Library(models.Model):
         app_label = 'someapp'
 
 
-class Book(StructuredNode):
+class Book(DjangoNode):
     title = StringProperty(unique_index=True)
+    created = DateTimeProperty(default=datetime.utcnow)
+
+    class Meta:
+        app_label = 'someapp'
