@@ -41,7 +41,7 @@ Write your first node definition in `yourapp/models.py`::
         title = StringProperty(unique_index=True)
         published = DateProperty()
 
-Create any constraints or indexes for your labels (this needs to be done every time you update your models)::
+Create any constraints or indexes for your labels *this needs to be done every time you update your models*::
 
     $ python manage.py install_labels
 
