@@ -1,0 +1,5 @@
+- uuid property
+- class view integration
+- management commands: change password?
+- test utils w transaction / reset
+- django debug tool bar interop (w rest interface)
