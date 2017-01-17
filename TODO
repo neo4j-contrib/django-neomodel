@@ -1,3 +1,4 @@
+- choices in model forms
 - uuid property
 - class view integration
 - management commands: change password?
