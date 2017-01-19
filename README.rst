@@ -59,9 +59,10 @@ Switch the base class from `StructuredNode` to `DjangoNode` and add a 'Meta' cla
 
     from datetime import datetime
     from django_neomodel import DjangoNode
-    from neomodel import StructuredNode, StringProperty, DateTimeProperty
+    from neomodel import StructuredNode, StringProperty, DateTimeProperty, UniqueIdProperty
 
     class Book(DjangoNode):
+        uid = UniqueIdProperty()
         title = StringProperty(unique_index=True)
         status = StringProperty(choices=(
                 ('Available', 'A'),

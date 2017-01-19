@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.db import models
 from django_neomodel import DjangoNode
-from neomodel import StringProperty, DateTimeProperty
+from neomodel import StringProperty, DateTimeProperty, UniqueIdProperty
 
 
 class Library(models.Model):
@@ -13,6 +13,7 @@ class Library(models.Model):
 
 
 class Book(DjangoNode):
+    uid = UniqueIdProperty()
     title = StringProperty(unique_index=True)
     status = StringProperty(choices=(
             ('Available', 'A'),
