@@ -1,6 +1,6 @@
 from django.db.models import signals
+from django.db.models.fields import BLANK_CHOICE_DASH
 from django.conf import settings
-
 from django.forms import fields
 from django.db.models.options import Options
 from django.core.exceptions import ValidationError
@@ -71,6 +71,7 @@ class DjangoField(object):
     def formfield(self, **kwargs):
         """
         Returns a django.forms.Field instance for this database Property.
+
         """
         defaults = {'required': self.required,
                     'label': self.label or self.name,
@@ -80,11 +81,41 @@ class DjangoField(object):
                 defaults['initial'] = self.prop.default_value()
 
         if self.choices:
-            raise NotImplementedError('Choices not supported yet')
+            # Fields with choices get special treatment.
+            include_blank = (not self.required or
+                             not (self.has_default() or 'initial' in kwargs))
+            defaults['choices'] = self.get_choices(include_blank=include_blank)
+            defaults['coerce'] = self.to_python
+
+            # Many of the subclass-specific formfield arguments (min_value,
+            # max_value) don't apply for choice fields, so be sure to only pass
+            # the values that TypedChoiceField will understand.
+            for k in list(kwargs):
+                if k not in ('coerce', 'empty_value', 'choices', 'required',
+                             'widget', 'label', 'initial', 'help_text',
+                             'error_messages', 'show_hidden_initial'):
+                    del kwargs[k]
 
         defaults.update(kwargs)
 
         return self.form_class(**defaults)
+
+    def to_python(self, value):
+        return value
+
+    def get_choices(self, include_blank=True):
+        blank_defined = False
+        blank_choice = BLANK_CHOICE_DASH
+        choices = list(self.choices) if self.choices else []
+        for choice, __ in choices:
+            if choice in ('', None):
+                blank_defined = True
+                break
+
+        first_choice = (blank_choice if include_blank and
+                        not blank_defined else [])
+        return first_choice + choices
+
 
 # Don't move else signals breaks
 from neomodel import RequiredProperty, DeflateError, StructuredNode
@@ -107,6 +138,13 @@ class DjangoNode(StructuredNode):
         return opts
 
     def full_clean(self, exclude, validate_unique=False):
+        """
+        Validate node, on error raising ValidationErrors which can be handled by django forms
+
+        :param exclude:
+        :param validate_unique: Check if conflicting node exists in the labels indexes
+        :return:
+        """
         props = self.__properties__
 
         for key in exclude:

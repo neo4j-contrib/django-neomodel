@@ -6,7 +6,7 @@ from tests.someapp.models import Book
 class BookForm(ModelForm):
     class Meta:
         model = Book
-        fields = ['title']
+        fields = ['title', 'status']
 
 
 class ModelFormTest(DjangoTestCase):
@@ -34,3 +34,14 @@ class ModelFormTest(DjangoTestCase):
     def test_can_render(self):
         bf = BookForm(data={'title': 'Harry Potter'})
         self.assertIn('Harry Potter', bf.__html__())
+        self.assertIn('<select', bf.__html__())
+
+    def test_choices(self):
+        bf = BookForm(data={'title': 'Select1', 'status': 'Damaged'})
+        self.assertTrue(bf.is_valid())
+        book = bf.save()
+        self.assertEqual(book.status, 'Damaged')
+
+    def test_invalid_choice(self):
+        bf = BookForm(data={'title': 'Select1', 'status': 'D'})
+        self.assertFalse(bf.is_valid())

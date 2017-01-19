@@ -57,23 +57,30 @@ Model forms
 
 Switch the base class from `StructuredNode` to `DjangoNode` and add a 'Meta' class::
 
+    from datetime import datetime
     from django_neomodel import DjangoNode
+    from neomodel import StructuredNode, StringProperty, DateTimeProperty
 
     class Book(DjangoNode):
         title = StringProperty(unique_index=True)
+        status = StringProperty(choices=(
+                ('Available', 'A'),
+                ('On loan', 'L'),
+                ('Damaged', 'D'),
+            ), default='Available')
         created = DateTimeProperty(default=datetime.utcnow)
 
         class Meta:
-            app_label = 'someapp'
+            app_label = 'library'
 
-Create a model form class as usual::
+Create a model form class for your `DjangoNode`::
 
     class BookForm(ModelForm):
         class Meta:
             model = Book
-            fields = ['title']
+            fields = ['title', 'status']
 
-Multiple choice and relationships are not supported yet.
+This class may now be used just like any other Django form.
 
 Settings
 ========

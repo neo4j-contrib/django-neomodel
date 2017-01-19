@@ -14,6 +14,12 @@ class Library(models.Model):
 
 class Book(DjangoNode):
     title = StringProperty(unique_index=True)
+    status = StringProperty(choices=(
+            ('Available', 'A'),
+            ('On loan', 'L'),
+            ('Damaged', 'D'),
+        ), default='Available')
+
     created = DateTimeProperty(default=datetime.utcnow)
 
     class Meta:
