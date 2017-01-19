@@ -30,3 +30,7 @@ class ModelFormTest(DjangoTestCase):
         hp = Book(title='Harrry').save()
         bf = BookForm(data={'title': 'Harry Potter'}, instance=hp)
         bf.save(True)
+
+    def test_can_render(self):
+        bf = BookForm(data={'title': 'Harry Potter'})
+        self.assertIn('Harry Potter', bf.__html__())
