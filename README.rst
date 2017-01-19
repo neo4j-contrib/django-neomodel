@@ -103,6 +103,19 @@ Signals work as expected with `StructuredNode` sub-classes::
 
     signals.post_save.connect(your_func, sender=Library)
 
+Testing
+=======
+
+You can create a setup method which clears the database before executing each test::
+
+    from neomodel import db, clear_neo4j_database
+
+    class YourTestClass(DjangoTestCase):
+        def setUp(self):
+            clear_neo4j_database(db)
+
+        def test_something(self):
+            pass
 
 Management Commands
 ===================

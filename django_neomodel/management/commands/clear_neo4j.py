@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from neomodel import db
+from neomodel import db, clear_neo4j_database
 
 
 class Command(BaseCommand):
@@ -8,5 +8,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write('Deleting all nodes..\n')
-        db.cypher_query("MATCH (a) DETACH DELETE a")
+        clear_neo4j_database(db)
         self.stdout.write('Done.\n')
