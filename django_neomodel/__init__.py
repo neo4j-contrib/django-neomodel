@@ -1,3 +1,5 @@
+from functools import total_ordering
+
 from django.db.models import signals
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.conf import settings
@@ -35,6 +37,7 @@ def classproperty(f):
     return cpf(f)
 
 
+@total_ordering
 class DjangoField(object):
     """
     Fake Django model field object which wraps a neomodel Property
@@ -42,6 +45,7 @@ class DjangoField(object):
     is_relation = False
     concrete = True
     editable = True
+    creation_counter = 0
 
     def __init__(self, prop, name):
         self.prop = prop
@@ -58,6 +62,21 @@ class DjangoField(object):
         self.required = prop.required
         self.blank = not self.required
         self.choices = getattr(prop, 'choices', None)
+
+        self.creation_counter = DjangoField.creation_counter
+        DjangoField.creation_counter += 1
+
+    def __eq__(self, other):
+        # Needed for @total_ordering
+        if isinstance(other, DjangoField):
+            return self.creation_counter == other.creation_counter
+        return NotImplemented
+
+    def __lt__(self, other):
+        # This is needed because bisect does not take a comparison function.
+        if isinstance(other, DjangoField):
+            return self.creation_counter < other.creation_counter
+        return NotImplemented
 
     def has_default(self):
         return self._has_default
