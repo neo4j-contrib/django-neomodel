@@ -140,7 +140,7 @@ Delete all nodes in your database, warning there is no confirmation!
 Requirements
 ============
 
-- Python 2.7, 3.3+
+- Python 2.7, 3.4+
 - neo4j 3.0+
 
 .. image:: https://badges.gitter.im/Join%20Chat.svg
