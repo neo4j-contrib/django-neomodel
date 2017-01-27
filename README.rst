@@ -1,5 +1,5 @@
-Django Neomodel (beta)
-======================
+Django Neomodel (beta!)
+=======================
 
 .. image:: https://raw.githubusercontent.com/robinedwards/neomodel/master/doc/source/_static/neomodel-300.png
    :alt: neomodel
@@ -38,7 +38,7 @@ Write your first node definition in `yourapp/models.py`::
         title = StringProperty(unique_index=True)
         published = DateProperty()
 
-Create any constraints or indexes for your labels. This needs to be done when you change your node definitions
+Create any constraints or indexes for your labels. This needs to be done after you change your node definitions
 much like `manage.py migrate`::
 
     $ python manage.py install_labels
