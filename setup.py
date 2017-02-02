@@ -2,8 +2,8 @@ from setuptools import setup, find_packages
 
 setup(
     name='django_neomodel',
-    version='0.0.1',
-    description='An object mapper for the neo4j graph database.',
+    version='0.0.2',
+    description='Use Neo4j with Django!',
     long_description=open('README.rst').read(),
     author='Robin Edwards',
     author_email='robin.ge@gmail.com',
@@ -12,7 +12,7 @@ setup(
     license='MIT',
     packages=find_packages(),
     keywords='neo4j django plugin neomodel',
-    install_requires=['neomodel>=3.1.0', 'django>=1.9'],
+    install_requires=['neomodel>=3.2.0', 'django>=1.9'],
     classifiers=[
         "Development Status :: 4 - Beta",
         'Intended Audience :: Developers',

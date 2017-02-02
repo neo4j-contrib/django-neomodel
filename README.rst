@@ -124,14 +124,15 @@ The following django management commands have been included.
 
 install_labels
 --------------
-Setup constraints and indexes on labels to match your node definitions. This should be executed after any schema changes::
+Setup constraints and indexes on labels for your node definitions. This should be executed after any schema changes::
 
    $ python manage.py install_labels
    Setting up labels and constraints...
 
+   Found tests.someapp.models.Book
    + Creating unique constraint for title on label Book for class tests.someapp.models.Book
-   tests.someapp.models.Book done.
-   Finished.
+
+   Finished 1 class(es).
 
 clear_neo4j
 -----------

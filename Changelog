@@ -1,2 +1,5 @@
-Version 0.0.1 2017-00-00
+Version 0.0.2
+ * Require neomodel 3.2.0 (auto_install_labels disabled by default)
+
+Version 0.0.1 2017-01-27
  * Initial release
