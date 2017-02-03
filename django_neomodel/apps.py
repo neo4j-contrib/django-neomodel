@@ -13,6 +13,8 @@ class NeomodelConfig(AppConfig):
     def read_settings(self):
         config.DATABASE_URL = getattr(settings, 'NEOMODEL_NEO4J_BOLT_URL', config.DATABASE_URL)
         config.FORCE_TIMEZONE = getattr(settings, 'NEOMODEL_FORCE_TIMEZONE', False)
+        config.ENCRYPTED_CONNECTION = getattr(settings, 'NEOMODEL_ENCRYPTED_CONNECTION', True)
+        config.MAX_POOL_SIZE = getattr(settings, 'NEOMODEL_MAX_POOL_SIZE', config.MAX_POOL_SIZE)
 
     def ready(self):
         self.read_settings()

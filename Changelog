@@ -1,4 +1,5 @@
 Version 0.0.2
+ * Add new config options MAX_POOL_SIZE and ENCRYPTED_CONNECTION
  * Require neomodel 3.2.0 (auto_install_labels disabled by default)
 
 Version 0.0.1 2017-01-27

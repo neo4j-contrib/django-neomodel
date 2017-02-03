@@ -85,11 +85,14 @@ This class may now be used just like any other Django form.
 
 Settings
 ========
-The following settings are available with default value shown::
+The following config options are available in django settings (default values shown).
+These are mapped to neomodel.config as django is started.
 
    NEOMODEL_NEO4J_BOLT_URL = 'bolt://neo4j:neo4j@localhost:7687'
    NEOMODEL_SIGNALS = True
    NEOMODEL_FORCE_TIMEZONE = False
+   NEOMODEL_ENCRYPTED_CONNECTION = True
+   NEOMODEL_MAX_POOL_SIZE = 50
 
 Signals
 =======
