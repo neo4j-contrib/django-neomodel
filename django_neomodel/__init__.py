@@ -7,24 +7,17 @@ from django.forms import fields
 from django.db.models.options import Options
 from django.core.exceptions import ValidationError
 
+from neomodel import RequiredProperty, DeflateError, StructuredNode
+
 
 __author__ = 'Robin Edwards'
 __email__ = 'robin.ge@gmail.com'
 __license__ = 'MIT'
 __package__ = 'django_neomodel'
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 
 default_app_config = 'django_neomodel.apps.NeomodelConfig'
-
-
-def signal_exec_hook(hook_name, self, *args, **kwargs):
-    if hasattr(self, hook_name):
-        getattr(self, hook_name)(*args, **kwargs)
-
-    if getattr(settings, 'NEOMODEL_SIGNALS', True) and hasattr(signals, hook_name):
-        sig = getattr(signals, hook_name)
-        sig.send(sender=self.__class__, instance=self)
 
 
 def classproperty(f):
@@ -136,10 +129,6 @@ class DjangoField(object):
         return first_choice + choices
 
 
-# Don't move else signals breaks
-from neomodel import RequiredProperty, DeflateError, StructuredNode
-
-
 class DjangoNode(StructuredNode):
     __abstract_node__ = True
 
@@ -198,3 +187,23 @@ class DjangoNode(StructuredNode):
             # if exists and not this node
             if node and node.id != getattr(self, 'id', None):
                 raise ValidationError({key, 'already exists'})
+
+    def pre_save(self):
+        if getattr(settings, 'NEOMODEL_SIGNALS', True):
+            self._creating_node = getattr(self, 'id', None) is None
+            signals.pre_save.send(sender=self.__class__, instance=self)
+
+    def post_save(self):
+        if getattr(settings, 'NEOMODEL_SIGNALS', True):
+            created = self._creating_node
+            delattr(self, '_creating_node')
+            signals.post_save.send(sender=self.__class__, instance=self, created=created)
+
+    def pre_delete(self):
+        if getattr(settings, 'NEOMODEL_SIGNALS', True):
+            signals.pre_delete.send(sender=self.__class__, instance=self)
+
+    def post_delete(self):
+        if getattr(settings, 'NEOMODEL_SIGNALS', True):
+            signals.post_delete.send(sender=self.__class__, instance=self)
+

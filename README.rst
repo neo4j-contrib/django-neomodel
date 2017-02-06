@@ -96,15 +96,22 @@ These are mapped to neomodel.config as django is started.
 
 Signals
 =======
-Signals work as expected with `StructuredNode` sub-classes::
+Signals work with `DjangoNode` sub-classes::
 
     from django.db.models import signals
-    from neomodel import StructuredNode, StringProperty
+    from django_neomodel import DjangoNode
+    from neomodel import StringProperty
 
-    class Book(StructuredNode):
+    class Book(DjangoNode):
       title = StringProperty(unique_index=True)
 
-    signals.post_save.connect(your_func, sender=Library)
+    def your_signal_func(sender, instance, signal, created):
+        pass
+
+    signals.post_save.connect(your_signal_func, sender=Book)
+
+The following are supported: `pre_save`, `post_save`, `pre_delete`, `post_delete`.
+On freshly created nodes `created=True` in the `post_save` signal argument.
 
 Testing
 =======
