@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 from neomodel import db, change_neo4j_password, clear_neo4j_database
-from neo4j.v1.exceptions import CypherError
+from neo4j.v1 import CypherError
 
 # Travis default password dance
 try:
