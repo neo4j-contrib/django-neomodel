@@ -86,13 +86,13 @@ This class may now be used just like any other Django form.
 Settings
 ========
 The following config options are available in django settings (default values shown).
-These are mapped to neomodel.config as django is started.
+These are mapped to neomodel.config as django is started::
 
-   NEOMODEL_NEO4J_BOLT_URL = 'bolt://neo4j:neo4j@localhost:7687'
-   NEOMODEL_SIGNALS = True
-   NEOMODEL_FORCE_TIMEZONE = False
-   NEOMODEL_ENCRYPTED_CONNECTION = True
-   NEOMODEL_MAX_POOL_SIZE = 50
+    NEOMODEL_NEO4J_BOLT_URL = 'bolt://neo4j:neo4j@localhost:7687'
+    NEOMODEL_SIGNALS = True
+    NEOMODEL_FORCE_TIMEZONE = False
+    NEOMODEL_ENCRYPTED_CONNECTION = True
+    NEOMODEL_MAX_POOL_SIZE = 50
 
 Signals
 =======
@@ -136,13 +136,13 @@ install_labels
 --------------
 Setup constraints and indexes on labels for your node definitions. This should be executed after any schema changes::
 
-   $ python manage.py install_labels
-   Setting up labels and constraints...
+    $ python manage.py install_labels
+    Setting up labels and constraints...
 
-   Found tests.someapp.models.Book
-   + Creating unique constraint for title on label Book for class tests.someapp.models.Book
+    Found tests.someapp.models.Book
+    + Creating unique constraint for title on label Book for class tests.someapp.models.Book
 
-   Finished 1 class(es).
+    Finished 1 class(es).
 
 clear_neo4j
 -----------
