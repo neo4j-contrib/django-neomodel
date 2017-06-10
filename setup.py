@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='django_neomodel',
-    version='0.0.3',
+    version='0.0.4',
     description='Use Neo4j with Django!',
     long_description=open('README.rst').read(),
     author='Robin Edwards',
@@ -12,7 +12,7 @@ setup(
     license='MIT',
     packages=find_packages(exclude=('tests',)),
     keywords='neo4j django plugin neomodel',
-    install_requires=['neomodel>=3.2.1', 'django>=1.9'],
+    install_requires=['neomodel>=3.2.5', 'django>=1.9'],
     classifiers=[
         "Development Status :: 4 - Beta",
         'Intended Audience :: Developers',
