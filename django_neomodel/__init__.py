@@ -14,7 +14,7 @@ __author__ = 'Robin Edwards'
 __email__ = 'robin.ge@gmail.com'
 __license__ = 'MIT'
 __package__ = 'django_neomodel'
-__version__ = '0.0.2'
+__version__ = '0.0.4'
 
 
 default_app_config = 'django_neomodel.apps.NeomodelConfig'
@@ -153,17 +153,10 @@ class DjangoNode(StructuredNode):
         :param validate_unique: Check if conflicting node exists in the labels indexes
         :return:
         """
-        props = self.__properties__
-
-        for key in exclude:
-            del props[key]
-
-        if validate_unique:
-            raise ValueError('Can not validate unique')
 
         # validate against neomodel
         try:
-            self.deflate(props, self)
+            self.deflate(self.__properties__, self)
         except DeflateError as e:
             raise ValidationError({e.property_name: e.msg})
         except RequiredProperty as e:
@@ -181,7 +174,7 @@ class DjangoNode(StructuredNode):
 
         # see if any nodes already exist with each property
         for key in unique_props:
-            val = self.deflate({key: props[key]}, self)[key]
+            val = getattr(self.__class__, key).deflate(props[key])
             node = cls.nodes.get_or_none(**{key: val})
 
             # if exists and not this node

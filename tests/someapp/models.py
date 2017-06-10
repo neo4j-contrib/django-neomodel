@@ -14,6 +14,8 @@ class Library(models.Model):
 
 class Book(DjangoNode):
     uid = UniqueIdProperty()
+    condition = StringProperty(default='new')  # check fields can be omitted
+    format = StringProperty(required=True)  # check required field can be ommitted on update
     title = StringProperty(unique_index=True)
     status = StringProperty(choices=(
             ('Available', 'A'),
