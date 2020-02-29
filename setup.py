@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='django_neomodel',
-    version='0.0.4',
+    version='0.0.5',
     description='Use Neo4j with Django!',
     long_description=open('README.rst').read(),
     author='Robin Edwards',
@@ -25,5 +25,6 @@ setup(
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "Topic :: Database",
     ])

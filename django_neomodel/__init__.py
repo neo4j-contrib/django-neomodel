@@ -14,7 +14,7 @@ __author__ = 'Robin Edwards'
 __email__ = 'robin.ge@gmail.com'
 __license__ = 'MIT'
 __package__ = 'django_neomodel'
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 
 
 default_app_config = 'django_neomodel.apps.NeomodelConfig'
@@ -119,6 +119,8 @@ class DjangoField(object):
         blank_defined = False
         blank_choice = BLANK_CHOICE_DASH
         choices = list(self.choices) if self.choices else []
+        if issubclass(type(self.choices), dict):
+            choices = list(enumerate(self.choices))
         for choice, __ in choices:
             if choice in ('', None):
                 blank_defined = True
