@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='django_neomodel',
-    version='0.0.5',
+    version='0.0.4',
     description='Use Neo4j with Django!',
     long_description=open('README.rst').read(),
     author='Robin Edwards',
