@@ -16,23 +16,23 @@ class Emitter(DjangoNode):
         super(Emitter, self).pre_save()
 
 
-def pre_save(sender, instance, signal):
+def pre_save(sender, instance, signal, **kwargs):
     SENT_SIGNAL['pre_save'] = True
 signals.pre_save.connect(pre_save, sender=Emitter)
 
 
-def post_save(sender, instance, signal, created):
+def post_save(sender, instance, signal, created, **kwargs):
     SENT_SIGNAL['post_save'] = True
     SENT_SIGNAL['post_save_created'] = created
 signals.post_save.connect(post_save, sender=Emitter)
 
 
-def pre_delete(sender, instance, signal):
+def pre_delete(sender, instance, signal, **kwargs):
     SENT_SIGNAL['pre_delete'] = True
 signals.pre_delete.connect(pre_delete, sender=Emitter)
 
 
-def post_delete(sender, instance, signal):
+def post_delete(sender, instance, signal, **kwargs):
     SENT_SIGNAL['post_delete'] = True
 signals.post_delete.connect(post_delete, sender=Emitter)
 

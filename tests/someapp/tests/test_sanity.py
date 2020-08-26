@@ -1,7 +1,8 @@
 from __future__ import absolute_import
 
 from django.test.testcases import TestCase as DjangoTestCase
-
+import django
+django.setup()
 from tests.someapp.models import Library
 
 

@@ -119,6 +119,10 @@ class DjangoField(object):
         blank_defined = False
         blank_choice = BLANK_CHOICE_DASH
         choices = list(self.choices) if self.choices else []
+
+        if issubclass(type(self.choices), dict):
+            choices = list(enumerate(self.choices))
+
         for choice, __ in choices:
             if choice in ('', None):
                 blank_defined = True

@@ -1,6 +1,9 @@
 from django.core.management import call_command
 from django.test import TestCase
-from django.utils.six import StringIO
+import django
+django.setup()
+
+from io import StringIO ## for Python 3
 
 
 class TestCommands(TestCase):
