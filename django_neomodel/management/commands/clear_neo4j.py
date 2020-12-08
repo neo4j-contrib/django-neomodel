@@ -8,5 +8,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write('Deleting all nodes..\n')
-        clear_neo4j_database(db)
+        clear_neo4j_database(db, True, True)
         self.stdout.write('Done.\n')

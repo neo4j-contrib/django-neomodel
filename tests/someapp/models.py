@@ -14,15 +14,13 @@ class Library(models.Model):
 
 class Book(DjangoNode):
     uid = UniqueIdProperty()
-    condition = StringProperty(default='new')  # check fields can be omitted
-    format = StringProperty(required=True)  # check required field can be ommitted on update
     title = StringProperty(unique_index=True)
+    format = StringProperty(required=True)  # check required field can be omitted on update
     status = StringProperty(choices=(
-            ('Available', 'A'),
-            ('On loan', 'L'),
-            ('Damaged', 'D'),
-        ), default='Available')
-
+            ('available', 'A'),
+            ('on_loan', 'L'),
+            ('damaged', 'D'),
+        ), default='available', coerce=str)
     created = DateTimeProperty(default=datetime.utcnow)
 
     class Meta:

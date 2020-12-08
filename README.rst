@@ -92,7 +92,7 @@ These are mapped to neomodel.config as django is started::
     NEOMODEL_SIGNALS = True
     NEOMODEL_FORCE_TIMEZONE = False
     NEOMODEL_ENCRYPTED_CONNECTION = True
-    NEOMODEL_MAX_POOL_SIZE = 50
+    NEOMODEL_MAX_CONNECTION_POOL_SIZE = 50
 
 Signals
 =======
@@ -141,7 +141,6 @@ Setup constraints and indexes on labels for your node definitions. This should b
 
     Found tests.someapp.models.Book
     + Creating unique constraint for title on label Book for class tests.someapp.models.Book
-
     Finished 1 class(es).
 
 clear_neo4j
@@ -151,9 +150,40 @@ Delete all nodes in your database, warning there is no confirmation!
 Requirements
 ============
 
-- Python 2.7, 3.4+
-- neo4j 3.0+
+- Python 3.6+
+- neo4j 3.5+
 
 .. image:: https://badges.gitter.im/Join%20Chat.svg
    :alt: Join the chat at https://gitter.im/robinedwards/neomodel
    :target: https://gitter.im/robinedwards/neomodel?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+
+
+To Contribute
+===================
+
+Setup neo4j Desktop with a local database with password 'foobar' and version 4.1.2 (current version when this was written).
+
+Commands to run tests::
+
+    # create local venv and install dependencies.
+    $ python3 -m venv venv; source venv/bin/activate; python setup.py develop; export DJANGO_SETTINGS_MODULE=tests.settings;
+    # Go to tests
+    $ cd tests/
+    $ ./manage.py install_labels
+    $ ./manage.py migrate
+    $ pytest
+
+    # example output:
+
+    platform darwin -- Python 3.9.0, pytest-6.1.2, py-1.9.0, pluggy-0.13.1
+    pick 0900469 Neo4J-update-t-4.1
+    rootdir: /Users/matthewgalvis/SilverLogic/GGP/gh/django-neomodel, configfile: pytest.ini
+    collected 16 items
+
+    someapp/tests/test_atomicity.py .                                                                                                                                                                                                                      [  6%]
+    someapp/tests/test_commands.py ..                                                                                                                                                                                                                      [ 18%]
+    someapp/tests/test_model_form.py ...........                                                                                                                                                                                                           [ 87%]
+    someapp/tests/test_sanity.py .                                                                                                                                                                                                                         [ 93%]
+    someapp/tests/test_signals.py .
+    16 passed, 11 warnings in 1.62s
+
