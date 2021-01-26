@@ -15,4 +15,4 @@ development.env
 .ropeproject
 \#*\#
 tests/test.db
-.DS_store
+.DS_Store
