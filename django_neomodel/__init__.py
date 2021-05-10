@@ -3,11 +3,13 @@ from functools import total_ordering
 from django.db.models import signals
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.conf import settings
-from django.forms import fields
+from django.forms import fields as form_fields
 from django.db.models.options import Options
 from django.core.exceptions import ValidationError
 
-from neomodel import RequiredProperty, DeflateError, StructuredNode
+from neomodel import RequiredProperty, DeflateError, StructuredNode, UniqueIdProperty
+from neomodel.core import NodeMeta
+from neomodel.match import NodeSet
 
 
 __author__ = 'Robin Edwards'
@@ -39,17 +41,29 @@ class DjangoField(object):
     concrete = True
     editable = True
     creation_counter = 0
+    unique = False
+    primary_key = False
+    auto_created = False
 
     def __init__(self, prop, name):
         self.prop = prop
 
         self.name = name
+        self.remote_field = name
+        self.attname = name
+        self.verbose_name = name
         self.help_text = getattr(prop, 'help_text', '')
+
+        if isinstance(prop, UniqueIdProperty):
+            # this seems that can be implemented in neomodel
+            # django-neomodel does have the needed code already but neomodel does not support
+            prop.primary_key = True
+
         self.primary_key = getattr(prop, 'primary_key', False)
         self.label = prop.label if prop.label else name
 
         form_cls = getattr(prop, 'form_field_class', 'Field')  # get field string
-        self.form_class = getattr(fields, form_cls, fields.CharField)
+        self.form_class = getattr(form_fields, form_cls, form_fields.CharField)
 
         self._has_default = prop.has_default
         self.required = prop.required
@@ -133,7 +147,42 @@ class DjangoField(object):
         return first_choice + choices
 
 
-class DjangoNode(StructuredNode):
+class Query:
+    select_related = False
+    order_by = ['pk']
+
+
+class NeoNodeSet(NodeSet):
+    query = Query()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model = self.source
+
+    def count(self):
+        return len(self)
+
+    def _clone(self):
+        return self
+
+
+class NeoManager:
+    def __init__(self, model):
+        self.model = model
+
+    def get_queryset(self):
+        return NeoNodeSet(self.model)
+
+
+class MetaClass(NodeMeta):
+    def __new__(cls, *args, **kwargs):
+        super_new = super().__new__
+        new_cls = super_new(cls, *args, **kwargs)
+        setattr(new_cls, "_default_manager", NeoManager(new_cls))
+        return new_cls
+
+
+class DjangoNode(StructuredNode, metaclass=MetaClass):
     __abstract_node__ = True
 
     @classproperty
@@ -142,10 +191,13 @@ class DjangoNode(StructuredNode):
             raise NotImplementedError('unique_together property not supported by neomodel')
 
         opts = Options(self.Meta, app_label=self.Meta.app_label)
-        opts.contribute_to_class(self.__class__, self.__class__.__name__)
+        opts.contribute_to_class(self, self.__name__)
 
         for key, prop in self.__all_properties__:
             opts.add_field(DjangoField(prop, key), getattr(prop, 'private', False))
+            if getattr(prop, "primary_key", False):
+                self.pk = prop
+                self.pk.auto_created = True
 
         return opts
 
@@ -178,6 +230,8 @@ class DjangoNode(StructuredNode):
 
         # see if any nodes already exist with each property
         for key in unique_props:
+            if key == 'pk' and getattr(self.__class__, key).auto_created:
+                continue
             val = getattr(self.__class__, key).deflate(props[key])
             node = cls.nodes.get_or_none(**{key: val})
 
@@ -204,3 +258,5 @@ class DjangoNode(StructuredNode):
         if getattr(settings, 'NEOMODEL_SIGNALS', True):
             signals.post_delete.send(sender=self.__class__, instance=self)
 
+    def serializable_value(self, attr):
+        return str(getattr(self, attr))

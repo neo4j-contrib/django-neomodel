@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.sites',
+    'django.contrib.staticfiles',
 
     # Third party
     'django_neomodel',
@@ -68,6 +69,9 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
 ]
+
+STATIC_ROOT = "./static/"
+STATIC_URL = '/static/'
 
 DJANGO_SUPERUSER_PASSWORD = "1234"
 DJANGO_SUPERUSER_EMAIL = "example@example.com"
