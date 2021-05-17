@@ -34,14 +34,24 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'APP_DIRS': True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.contrib.auth.context_processors.auth",
+                "django.template.context_processors.request",
+                "django.contrib.messages.context_processors.messages",
+            ]
+        },
     },
 ]
 
 INSTALLED_APPS = [
     # Django
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.messages',
     'django.contrib.sites',
 
     # Third party
@@ -53,5 +63,12 @@ INSTALLED_APPS = [
 
 USE_TZ = True
 TIME_ZONE = 'UTC'
-MIDDLEWARE = []
+MIDDLEWARE = [
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+]
 
+DJANGO_SUPERUSER_PASSWORD = "1234"
+DJANGO_SUPERUSER_EMAIL = "example@example.com"
+DJANGO_SUPERUSER_USERNAME = "admin"

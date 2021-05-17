@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  backend:
+    build:
+      context: ../
+      dockerfile: ./tests/Dockerfile
+    command: '/bin/bash -c "chmod +x /usr/src/app/tests/docker-entrypoint.sh && /usr/src/app/tests/docker-entrypoint.sh"'
+    volumes:
+      - ..:/usr/src/app
+    ports:
+      - "8000:8000"
+    expose:
+      - 8000
+    depends_on:
+      - neo4j_db
+    links:
+      - neo4j_db
+    environment:
+      - NEO4J_BOLT_URL=bolt://neo4j:foobar@neo4j_db:7687
+      - DJANGO_SETTINGS_MODULE=settings
+
+
+  neo4j_db:
+    image: neo4j:4.2-enterprise
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    expose:
+      - 7474
+      - 7687
+    volumes:
+      - db:/data/dbms
+    environment:
+      - NEO4J_AUTH=neo4j/foobar
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+      - dbms.connector.bolt.listen_address=:7687
+      - dbms.connector.bolt.advertised_address=:7687
+
+volumes:
+  db:
+

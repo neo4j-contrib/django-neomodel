@@ -156,6 +156,25 @@ Requirements
    :alt: Join the chat at https://gitter.im/robinedwards/neomodel
    :target: https://gitter.im/robinedwards/neomodel?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
+Docker Example
+===================
+
+
+Using Docker Compose.
+
+Commands to setup Docker Container docker-entrypoint.sh::
+
+    # Go to tests
+    $ cd tests/
+    # Docker Command (Make sure Docker is running and up to date)
+    $ docker-compose up
+    # login in admin with username=admin password=1234
+
+Go to http://localhost:7474/browser/
+
+Go to http://localhost:8000/admin/
+
+
 
 To Contribute
 ===================
@@ -176,7 +195,6 @@ Commands to run tests::
 
     platform darwin -- Python 3.9.0, pytest-6.1.2, py-1.9.0, pluggy-0.13.1
     pick 0900469 Neo4J-update-t-4.1
-    rootdir: /Users/matthewgalvis/SilverLogic/GGP/gh/django-neomodel, configfile: pytest.ini
     collected 16 items
 
     someapp/tests/test_atomicity.py .                                                                                                                                                                                                                      [  6%]
