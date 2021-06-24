@@ -13,7 +13,7 @@ class Library(models.Model):
 
 
 class Book(DjangoNode):
-    uid = UniqueIdProperty()
+    uid = UniqueIdProperty(primary_key=True)
     title = StringProperty(unique_index=True)
     format = StringProperty(required=True)  # check required field can be omitted on update
     status = StringProperty(choices=(
@@ -24,4 +24,18 @@ class Book(DjangoNode):
     created = DateTimeProperty(default=datetime.utcnow)
 
     class Meta:
-        app_label = 'someapp'
+        app_label = "someapp"
+
+    def __str__(self):
+        return self.title
+
+
+class Shelf(DjangoNode):
+    uid = UniqueIdProperty(primary_key=True)
+    name = StringProperty()
+
+    class Meta:
+        app_label = "someapp"
+
+    def __str__(self):
+        return self.name
