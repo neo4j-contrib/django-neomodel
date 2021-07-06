@@ -1,5 +1,7 @@
-Version 0.0.7 2021-04-08
+Version 0.0.7 2021-07-06
  * Added Docker Example
+ * Django admin regsister for nodes is now available (beta)
+ * Fixed NEOMODEL-MAX-POOL-SIZE on settings
 
 Version 0.0.6 2021-01-22
  * Update neomodel 4.0.2 (required)
