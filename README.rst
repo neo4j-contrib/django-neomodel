@@ -53,7 +53,7 @@ Now in a view `yourapp/views.py`::
 In your `yourapp/admin.py`::
 
     from django_neomodel import admin as neo_admin
-    from .models import Library, Book, Shelf
+    from .models import Book
 
     class BookAdmin(dj_admin.ModelAdmin):
         list_display = ("title", "created")
