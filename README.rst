@@ -50,6 +50,15 @@ Now in a view `yourapp/views.py`::
     def get_books(request):
         return render('yourapp/books.html', request, {'books': Book.nodes.all()})
 
+In your `yourapp/admin.py`::
+
+    from django_neomodel import admin as neo_admin
+    from .models import Library, Book, Shelf
+
+    class BookAdmin(dj_admin.ModelAdmin):
+        list_display = ("title", "created")
+    neo_admin.register(Book, BookAdmin)
+
 And you're ready to go. Don't forget to check the neomodel_ documentation.
 
 Model forms
@@ -175,11 +184,10 @@ Go to http://localhost:7474/browser/
 Go to http://localhost:8000/admin/
 
 
-
-To Contribute
+Running Tests
 ===================
 
-Setup neo4j Desktop with a local database with password 'foobar' and version 4.1.2 (current version when this was written).
+Setup Neo4j Desktop with a local database with password 'foobar' and version 4.1.2 (current version when this was written).
 
 Commands to run tests::
 
