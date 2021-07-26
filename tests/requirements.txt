@@ -1,5 +1,5 @@
-neomodel>=4.0.2
+neomodel>=4.0.5
 pytz>=2020.1
 django>=2.2
 pytest-django>=3.10.0
-django-neomodel == 0.0.6
+django-neomodel == 0.0.7
