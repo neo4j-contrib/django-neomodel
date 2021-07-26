@@ -19,6 +19,9 @@ services:
     environment:
       - NEO4J_BOLT_URL=bolt://neo4j:foobar@neo4j_db:7687
       - DJANGO_SETTINGS_MODULE=settings
+      - DJANGO_SUPERUSER_PASSWORD
+      - DJANGO_SUPERUSER_EMAIL
+      - DJANGO_SUPERUSER_USERNAME
 
 
   neo4j_db:

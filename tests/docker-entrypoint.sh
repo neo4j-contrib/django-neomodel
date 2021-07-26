@@ -14,7 +14,9 @@ then
     python manage.py createsuperuser \
         --noinput \
         --username $DJANGO_SUPERUSER_USERNAME \
-        --email $DJANGO_SUPERUSER_EMAIL
+        --email $DJANGO_SUPERUSER_EMAIL || true
+else
+    echo "No superusername found"
 fi
 
 $@
