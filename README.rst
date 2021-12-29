@@ -12,6 +12,16 @@ This module allows you to use the neo4j_ graph database with Django using neomod
 .. image:: https://secure.travis-ci.org/neo4j-contrib/django-neomodel.png
     :target: https://secure.travis-ci.org/neo4j-contrib/django-neomodel/
 
+Warnings
+=======================
+
+* Admin functionality is very experimental. `Please see todos / issues here <https://github.com/neo4j-contrib/django-neomodel/projects/1>`_
+
+Live Examples (add yours here)
+=======================
+
+* `ResoTrack <https://resotrack.herokuapp.com/>`_
+
 Getting started
 ===============
 
