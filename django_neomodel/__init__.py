@@ -2,14 +2,22 @@ from functools import total_ordering
 
 from django.db.models import signals
 from django.db.models.fields import BLANK_CHOICE_DASH
+from django.db.models.base import ModelState
+from django.db.models import ManyToManyField
+
 from django.conf import settings
 from django.forms import fields as form_fields
+from django.forms import ModelMultipleChoiceField as form_ModelMultipleChoiceField 
 from django.db.models.options import Options
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError 
 
-from neomodel import RequiredProperty, DeflateError, StructuredNode, UniqueIdProperty
+from neomodel import RequiredProperty, DeflateError, StructuredNode, UniqueIdProperty, AliasProperty, UniqueProperty 
 from neomodel.core import NodeMeta
 from neomodel.match import NodeSet
+from neomodel.cardinality import OneOrMore, One, ZeroOrOne, ZeroOrMore
+
+from importlib import import_module
+from types import SimpleNamespace
 
 
 __author__ = 'Robin Edwards'
@@ -32,11 +40,26 @@ def classproperty(f):
     return cpf(f)
 
 
+class NOT_PROVIDED:
+    pass
+
+
+class DjangoFormFieldMultipleChoice(form_fields.MultipleChoiceField):
+    """ Sublcass of Djangos MultipleChoiceField but without working validator """
+    def validate(self, value):
+        return True 
+
+
+class DjangoFormFieldTypedChoice(form_fields.TypedChoiceField):
+    """ Sublcass of Djangos TypedChoiceField but without working validator """
+    def validate(self, value):
+        return True
+
+
 @total_ordering
-class DjangoField(object):
-    """
-    Fake Django model field object which wraps a neomodel Property
-    """
+class DjangoBaseField(object):
+    """ Base field where Properties and Relations Field should subclass from """
+
     is_relation = False
     concrete = True
     editable = True
@@ -45,9 +68,55 @@ class DjangoField(object):
     primary_key = False
     auto_created = False
 
+    # Then from class RelatedField(FieldCacheMixin, Field): see https://docs.djangoproject.com/en/2.0/_modules/django/db/models/fields/related/
+    # Field flags
+    one_to_many = None
+    one_to_one = None
+    many_to_many = None
+    many_to_one = None
+   
+    creation_counter = 0
+
+    def __init__(self):
+        self.creation_counter = DjangoBaseField.creation_counter
+        DjangoBaseField.creation_counter += 1
+
+    def __eq__(self, other):
+        # Needed for @total_ordering
+        if isinstance(other, DjangoBaseField):
+            return self.creation_counter == other.creation_counter
+        return NotImplemented
+
+    def __lt__(self, other):
+        # This is needed because bisect does not take a comparison function.
+        if isinstance(other, DjangoBaseField):
+            return self.creation_counter < other.creation_counter
+        return NotImplemented
+
+    def has_default(self):
+        return self._has_default
+
+    def to_python(self, value):
+        return value
+
+    def __hash__(self):
+        # The delete function in the Admin requires a hash
+        return hash(self.creation_counter)
+    
+
+class DjangoPropertyField(DjangoBaseField):
+    """
+    Fake Django model field object which wraps a neomodel Property
+    """
+    is_relation = False
+    concrete = True
+    editable = True   
+    unique = False
+    primary_key = False
+    auto_created = False
+
     def __init__(self, prop, name):
         self.prop = prop
-
         self.name = name
         self.remote_field = name
         self.attname = name
@@ -70,23 +139,7 @@ class DjangoField(object):
         self.blank = not self.required
         self.choices = getattr(prop, 'choices', None)
 
-        self.creation_counter = DjangoField.creation_counter
-        DjangoField.creation_counter += 1
-
-    def __eq__(self, other):
-        # Needed for @total_ordering
-        if isinstance(other, DjangoField):
-            return self.creation_counter == other.creation_counter
-        return NotImplemented
-
-    def __lt__(self, other):
-        # This is needed because bisect does not take a comparison function.
-        if isinstance(other, DjangoField):
-            return self.creation_counter < other.creation_counter
-        return NotImplemented
-
-    def has_default(self):
-        return self._has_default
+        super().__init__()
 
     def save_form_data(self, instance, data):
         setattr(instance, self.name, data)
@@ -123,20 +176,15 @@ class DjangoField(object):
                     del kwargs[k]
 
         defaults.update(kwargs)
-
         return self.form_class(**defaults)
-
-    def to_python(self, value):
-        return value
 
     def get_choices(self, include_blank=True):
         blank_defined = False
         blank_choice = BLANK_CHOICE_DASH
         choices = list(self.choices) if self.choices else []
-
         if issubclass(type(self.choices), dict):
-            choices = list(enumerate(self.choices))
-
+            # Ensure list of tuples with proper key-value pairing
+            choices = [(k, v) for k, v in self.choices.items()] 
         for choice, __ in choices:
             if choice in ('', None):
                 blank_defined = True
@@ -145,6 +193,176 @@ class DjangoField(object):
         first_choice = (blank_choice if include_blank and
                         not blank_defined else [])
         return first_choice + choices
+
+
+class DjangoRemoteField(object):
+    """ Fake RemoteField to let the Django Admin work """
+
+    def __init__(self, b):
+        # Fake this call https://github.com/django/django/blob/ac5cc6cf01463d90aa333d5f6f046c311019827b/django/contrib/admin/widgets.py#L278
+        self.model = b 
+        self.through = SimpleNamespace(_meta=SimpleNamespace(auto_created=True))
+
+    def get_related_field(self):
+        # Fake call https://github.com/django/django/blob/ac5cc6cf01463d90aa333d5f6f046c311019827b/django/contrib/admin/widgets.py#L282
+        # from the Django Admin
+        return SimpleNamespace(name=self.model.pk.target)
+
+
+class DjangoRelationField(DjangoBaseField):
+    """
+    Fake Django model field object which wraps a neomodel Relationship
+    """
+    one_to_many = False
+    one_to_one = False
+    many_to_one = False
+
+    many_to_many = True
+
+    @property
+    def __class__(self):
+        # Fake the class for 
+        # https://github.com/django/django/blob/ac5cc6cf01463d90aa333d5f6f046c311019827b/django/contrib/admin/options.py#L144
+        # so we can get the admin ManyToMany field widgets to work
+        return ManyToManyField
+
+    def __init__(self, prop, name):
+        self.prop = prop
+        self.choices = None 
+        
+        self.required = False
+        if prop.manager is OneOrMore or prop.manager is One:
+            self.required = True
+
+        self.blank = False 
+       
+        # See https://docs.djangoproject.com/en/2.0/_modules/django/db/models/fields/
+        # Need a way to signal that there is no default
+        self._has_default = NOT_PROVIDED
+
+        self.name = name
+        self.attname = name
+        self.verbose_name = name
+        self.help_text = getattr(prop, 'help_text', '')
+        
+        if prop.manager is ZeroOrOne: 
+            # This form_class has its validator set to True
+            self.form_class = DjangoFormFieldTypedChoice
+        else:
+            # This form_class has its validator set to True
+            self.form_class = DjangoFormFieldMultipleChoice 
+    
+        # Need to load the related model in so we can fetch
+        # all nodes.
+
+        a = import_module(self.prop.module_name)
+        b = getattr(a, self.prop._raw_class)
+        self._related_model = b 
+        
+        self.remote_field = DjangoRemoteField(b)
+
+        super().__init__()
+        
+    def value_from_object(self, instance):
+        instance_relation = getattr(instance, self.name)
+        node_ids_selected = []
+        for this_object in instance_relation.all():
+            node_ids_selected.append(this_object.pk)
+        return node_ids_selected
+   
+    def save_form_data(self, instance, data):
+        # instance is the current node which needs to get connected
+        # data is a list of ids/uids of the nodes-to-connect-to
+
+        instance_relation = getattr(instance, self.name)
+        # Need to define which nodes to disconnect from first!
+        all_possible_nodes = self._related_model.nodes.all()
+        
+        # Gather the pks from these nodes
+        list_of_ids = []
+        for this_node in all_possible_nodes:
+            list_of_ids.append(this_node.pk)
+        # So which nodes are not selected?
+        should_not_be_connected = set(list_of_ids) - set(data)
+       
+        # Need to save the instance before relations can be made
+        try:
+            instance.save()
+        except UniqueProperty as e:
+            raise ValidationError(e)  
+        # Cardinality needs to be observed, so use following order:
+        # if One: replace
+        # if OneOreMore: first connect, then disconnect
+        # if ZeroOrMore: doesn't matter
+        # if ZeroOrOne: First disconnect, then connect
+     
+        if self.prop.manager is ZeroOrMore or self.prop.manager is ZeroOrOne:
+            # Instead of checking the relationship exists, just disconnect 
+            # In the future when specific relationships are implemented, this
+            # should be updated
+            self._disconnect_node(should_not_be_connected, instance_relation)
+
+            # Now time to setup new connections
+            if data:  # In case we selected an empty unit, don't do anything 
+                self._connect_node(data, instance_relation)
+        
+        elif self.prop.manager is OneOrMore:
+            # First setup new connections
+            self._connect_node(data, instance_relation)
+            try:
+                instance.save()
+            except UniqueProperty as e:
+                raise ValidationError(e)  
+        
+            # Instead of checking the relationship exists, just disconnect 
+            self._disconnect_node(should_not_be_connected, instance_relation)
+        else:
+            # This would require replacing the current relation with a new one
+            raise NotImplementedError('Cardinality of One is not supported yet')
+
+    def _disconnect_node(self, should_not_be_connected, instance_relation):
+        """ Given a list pk's, remove the relationship """
+
+        # Internals used by save_form_data to 
+        for this_object in should_not_be_connected:
+            remover = self._related_model.nodes.get_or_none(pk=this_object)
+            instance_relation.disconnect(remover)
+
+    def _connect_node(self, data, instance_relation):
+        """ Given a list pk's, add the relationship """
+
+        # If ChoiceField, it is not a list
+        data = [data] if not isinstance(data, list) else data  
+        
+        for this_object in data:
+            # Retreive the node-to-connect-to
+            adder = self._related_model.nodes.get_or_none(pk=this_object)
+            # If the connection is there, leave it
+            if not adder:
+                raise ValidationError({self.name: ' not found'})
+
+            if not instance_relation.is_connected(adder):
+                instance_relation.connect(adder)
+   
+    def formfield(self, *args, **kwargs):
+        """Return a django.forms.Field instance for this field."""
+
+        node_options = []
+
+        if self.prop.manager is ZeroOrOne:
+            node_options = BLANK_CHOICE_DASH.copy()
+
+        for this_object in self._related_model.nodes.all():
+            node_options.append((this_object.pk, this_object.__str__))
+
+        defaults = {'required': self.required,
+                    'label': self.verbose_name,
+                    'help_text': self.help_text,
+                    **kwargs,
+                    }
+
+        defaults['choices'] = node_options
+        return self.form_class(**defaults)
 
 
 class Query:
@@ -158,7 +376,7 @@ class NeoNodeSet(NodeSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.model = self.source
-
+    
     def count(self):
         return len(self)
 
@@ -189,18 +407,39 @@ class DjangoNode(StructuredNode, metaclass=MetaClass):
     def _meta(self):
         if hasattr(self.Meta, 'unique_together'):
             raise NotImplementedError('unique_together property not supported by neomodel')
+        
+        # Need a ModelState for the admin to delete an object
+        self._state = ModelState() 
+        self._state.adding = False 
 
         opts = Options(self.Meta, app_label=self.Meta.app_label)
         opts.contribute_to_class(self, self.__name__)
 
+        # Again, otherwise delete from admin doesn't work, see: 
+        # https://github.com/django/django/blob/0e656c02fe945389246f0c08f51c6db4a0849bd2/django/db/models/deletion.py#L252 
+        opts.concrete_model = self 
+
         for key, prop in self.__all_properties__:
-            opts.add_field(DjangoField(prop, key), getattr(prop, 'private', False))
+            opts.add_field(DjangoPropertyField(prop, key), getattr(prop, 'private', False))
             if getattr(prop, "primary_key", False):
-                self.pk = prop
-                self.pk.auto_created = True
+                # a reference using self.pk = prop fails in some cases where
+                # django references the .pk attribute directly. ie in 
+                # https://github.com/django/django/blob/ac5cc6cf01463d90aa333d5f6f046c311019827b/django/contrib/admin/options.py#L860
+                # causes non-consistent behaviour because Django sometimes looks up the 
+                # attribute name via 'pk = cl.lookup_opts.pk.attname'.
+                # instead provide an AliasProperty to the property tagged
+                # as primary_key
+                self.pk = AliasProperty(to=key)
+        
+        for key, relation in self.__all_relationships__:
+            opts.add_field(DjangoRelationField(relation,key), getattr(prop, 'private', False))
 
         return opts
 
+    def __hash__(self):
+        # The delete function in the Admin requires a hash
+        return hash(self.pk)
+   
     def full_clean(self, exclude, validate_unique=False):
         """
         Validate node, on error raising ValidationErrors which can be handled by django forms
@@ -217,6 +456,8 @@ class DjangoNode(StructuredNode, metaclass=MetaClass):
             raise ValidationError({e.property_name: e.msg})
         except RequiredProperty as e:
             raise ValidationError({e.property_name: 'is required'})
+        except UniqueProperty as e:
+            raise ValidationError({e.property_name: e.msg})  
 
     def validate_unique(self, exclude):
         # get unique indexed properties
