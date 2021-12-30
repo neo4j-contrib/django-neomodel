@@ -18,6 +18,7 @@ from neomodel.cardinality import OneOrMore, One, ZeroOrOne, ZeroOrMore
 
 from importlib import import_module
 from types import SimpleNamespace
+from django.apps import apps as current_apps
 
 
 __author__ = 'Robin Edwards'
@@ -54,6 +55,57 @@ class DjangoFormFieldTypedChoice(form_fields.TypedChoiceField):
     """ Sublcass of Djangos TypedChoiceField but without working validator """
     def validate(self, value):
         return True
+
+class DjangoEmptyField(object):
+    """ Base field where Properties and Relations Field should subclass from """
+
+    is_relation = False
+    concrete = True
+    editable = True
+    creation_counter = 0
+    unique = False
+    primary_key = False
+    auto_created = False
+
+    # Then from class RelatedField(FieldCacheMixin, Field): see https://docs.djangoproject.com/en/2.0/_modules/django/db/models/fields/related/
+    # Field flags
+    one_to_many = None
+    one_to_one = None
+    many_to_many = None
+    many_to_one = None
+   
+    creation_counter = 0
+
+    def __init__(self):
+        self.remote_field = None
+        self.creation_counter = DjangoBaseField.creation_counter
+        DjangoBaseField.creation_counter += 1
+
+    def __eq__(self, other):
+        # Needed for @total_ordering
+        if isinstance(other, DjangoBaseField):
+            return self.creation_counter == other.creation_counter
+        return NotImplemented
+
+    def __lt__(self, other):
+        # This is needed because bisect does not take a comparison function.
+        if isinstance(other, DjangoBaseField):
+            return self.creation_counter < other.creation_counter
+        return NotImplemented
+
+    def has_default(self):
+        return self._has_default
+
+    def to_python(self, value):
+        return value
+
+    def __hash__(self):
+        # The delete function in the Admin requires a hash
+        return hash(self.creation_counter)
+
+    def clone(self):
+        return self
+    
 
 
 @total_ordering
@@ -102,6 +154,9 @@ class DjangoBaseField(object):
     def __hash__(self):
         # The delete function in the Admin requires a hash
         return hash(self.creation_counter)
+
+    def clone(self):
+        return self
     
 
 class DjangoPropertyField(DjangoBaseField):
@@ -119,6 +174,7 @@ class DjangoPropertyField(DjangoBaseField):
         self.prop = prop
         self.name = name
         self.remote_field = name
+        self.remote_field = None
         self.attname = name
         self.verbose_name = name
         self.help_text = getattr(prop, 'help_text', '')
@@ -195,6 +251,10 @@ class DjangoPropertyField(DjangoBaseField):
         return first_choice + choices
 
 
+    def clone(self):
+        return self
+
+
 class DjangoRemoteField(object):
     """ Fake RemoteField to let the Django Admin work """
 
@@ -202,6 +262,7 @@ class DjangoRemoteField(object):
         # Fake this call https://github.com/django/django/blob/ac5cc6cf01463d90aa333d5f6f046c311019827b/django/contrib/admin/widgets.py#L278
         self.model = b 
         self.through = SimpleNamespace(_meta=SimpleNamespace(auto_created=True))
+        #pass
 
     def get_related_field(self):
         # Fake call https://github.com/django/django/blob/ac5cc6cf01463d90aa333d5f6f046c311019827b/django/contrib/admin/widgets.py#L282
@@ -276,7 +337,11 @@ class DjangoRelationField(DjangoBaseField):
 
         instance_relation = getattr(instance, self.name)
         # Need to define which nodes to disconnect from first!
-        all_possible_nodes = self._related_model.nodes.all()
+
+        related_model = current_apps.get_model(self.prop.module_name.split('.')[-2],
+            self.prop._raw_class)
+
+        all_possible_nodes = related_model.nodes.all()
         
         # Gather the pks from these nodes
         list_of_ids = []
@@ -346,13 +411,18 @@ class DjangoRelationField(DjangoBaseField):
    
     def formfield(self, *args, **kwargs):
         """Return a django.forms.Field instance for this field."""
-
+        
         node_options = []
+
+        # Fetch the related_module from the apps registry (instead of circular imports)
+        related_model = current_apps.get_model(self.prop.module_name.split('.')[-2],
+            self.prop._raw_class)
 
         if self.prop.manager is ZeroOrOne:
             node_options = BLANK_CHOICE_DASH.copy()
 
-        for this_object in self._related_model.nodes.all():
+    
+        for this_object in related_model.nodes.all():
             node_options.append((this_object.pk, this_object.__str__))
 
         defaults = {'required': self.required,
@@ -363,6 +433,14 @@ class DjangoRelationField(DjangoBaseField):
 
         defaults['choices'] = node_options
         return self.form_class(**defaults)
+
+    def clone(self):
+        """ 
+        Upon cloning a relationship, provide an empty field wrapper, so circular
+        imports are prevented by the Django app registry
+        """
+
+        return DjangoEmptyField()
 
 
 class Query:
@@ -383,12 +461,20 @@ class NeoNodeSet(NodeSet):
     def _clone(self):
         return self
 
+    def iterator(self):
+        """ Needed to run pytest after adding app/model register """
+        return []
+
 
 class NeoManager:
     def __init__(self, model):
         self.model = model
-
+        
     def get_queryset(self):
+        return NeoNodeSet(self.model)
+
+    def using(self, connection):
+        """ Needed to run pytest after adding app/model register"""
         return NeoNodeSet(self.model)
 
 
@@ -397,17 +483,28 @@ class MetaClass(NodeMeta):
         super_new = super().__new__
         new_cls = super_new(cls, *args, **kwargs)
         setattr(new_cls, "_default_manager", NeoManager(new_cls))
+
+        # Needed to run pytest, after adding app/model register
+        setattr(new_cls, "_base_manager", NeoManager(new_cls))
+       
         return new_cls
 
 
 class DjangoNode(StructuredNode, metaclass=MetaClass):
     __abstract_node__ = True
 
+    
     @classproperty
     def _meta(self):
+
         if hasattr(self.Meta, 'unique_together'):
             raise NotImplementedError('unique_together property not supported by neomodel')
-        
+
+    
+        #def can_migrate(self, connection):
+        #    return False
+
+
         # Need a ModelState for the admin to delete an object
         self._state = ModelState() 
         self._state.adding = False 
@@ -432,9 +529,24 @@ class DjangoNode(StructuredNode, metaclass=MetaClass):
                 self.pk = AliasProperty(to=key)
         
         for key, relation in self.__all_relationships__:
-            opts.add_field(DjangoRelationField(relation,key), getattr(prop, 'private', False))
+            opts.add_field(DjangoRelationField(relation, key), getattr(prop, 'private', False))
+
+        # Register the model in the Django app registry. 
+        # Django will try to clone to make a ModelState and upon cloning
+        # the relations will result in an empty object, so there are no
+        # circular imports
+        
+        #raise Warning(self.__module__.split('.')[-2])
+        current_apps.register_model(self.__module__.split('.')[-2],  self)
 
         return opts
+
+   
+   
+    @classmethod
+    def check(cls, **kwargs):
+        """ Needed for app registry, always provide empty list of errors """
+        return []
 
     def __hash__(self):
         # The delete function in the Admin requires a hash
