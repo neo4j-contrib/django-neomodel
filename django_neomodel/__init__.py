@@ -314,11 +314,14 @@ class DjangoRelationField(DjangoBaseField):
             self.form_class = DjangoFormFieldMultipleChoice 
     
         # Need to load the related model in so we can fetch
-        # all nodes.
+        # all nodes. This solution, instead of using the app
+        # registry is far from idea, because it can cause
+        # circular imports
 
         a = import_module(self.prop.module_name)
         b = getattr(a, self.prop._raw_class)
-        self._related_model = b 
+        #self._related_model = b 
+
         
         self.remote_field = DjangoRemoteField(b)
 
@@ -388,20 +391,27 @@ class DjangoRelationField(DjangoBaseField):
     def _disconnect_node(self, should_not_be_connected, instance_relation):
         """ Given a list pk's, remove the relationship """
 
+        related_model = current_apps.get_model(self.prop.module_name.split('.')[-2],
+            self.prop._raw_class)
+
         # Internals used by save_form_data to 
         for this_object in should_not_be_connected:
-            remover = self._related_model.nodes.get_or_none(pk=this_object)
+            remover = related_model.nodes.get_or_none(pk=this_object)
             instance_relation.disconnect(remover)
 
     def _connect_node(self, data, instance_relation):
         """ Given a list pk's, add the relationship """
+
+        related_model = current_apps.get_model(self.prop.module_name.split('.')[-2],
+            self.prop._raw_class)
+
 
         # If ChoiceField, it is not a list
         data = [data] if not isinstance(data, list) else data  
         
         for this_object in data:
             # Retreive the node-to-connect-to
-            adder = self._related_model.nodes.get_or_none(pk=this_object)
+            adder = related_model.nodes.get_or_none(pk=this_object)
             # If the connection is there, leave it
             if not adder:
                 raise ValidationError({self.name: ' not found'})
