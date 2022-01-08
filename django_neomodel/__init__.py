@@ -16,9 +16,15 @@ from neomodel.core import NodeMeta
 from neomodel.match import NodeSet
 from neomodel.cardinality import OneOrMore, One, ZeroOrOne, ZeroOrMore
 
-from importlib import import_module
 from types import SimpleNamespace
 from django.apps import apps as current_apps
+
+# Need to following to get the relationships to work
+RECURSIVE_RELATIONSHIP_CONSTANT = 'self'
+
+from django.db.models.fields.related import resolve_relation, RECURSIVE_RELATIONSHIP_CONSTANT, lazy_related_operation
+from django.db.models.utils import make_model_tuple
+from functools import partial
 
 
 __author__ = 'Robin Edwards'
@@ -55,57 +61,6 @@ class DjangoFormFieldTypedChoice(form_fields.TypedChoiceField):
     """ Sublcass of Djangos TypedChoiceField but without working validator """
     def validate(self, value):
         return True
-
-class DjangoEmptyField(object):
-    """ Base field where Properties and Relations Field should subclass from """
-
-    is_relation = False
-    concrete = True
-    editable = True
-    creation_counter = 0
-    unique = False
-    primary_key = False
-    auto_created = False
-
-    # Then from class RelatedField(FieldCacheMixin, Field): see https://docs.djangoproject.com/en/2.0/_modules/django/db/models/fields/related/
-    # Field flags
-    one_to_many = None
-    one_to_one = None
-    many_to_many = None
-    many_to_one = None
-   
-    creation_counter = 0
-
-    def __init__(self):
-        self.remote_field = None
-        self.creation_counter = DjangoBaseField.creation_counter
-        DjangoBaseField.creation_counter += 1
-
-    def __eq__(self, other):
-        # Needed for @total_ordering
-        if isinstance(other, DjangoBaseField):
-            return self.creation_counter == other.creation_counter
-        return NotImplemented
-
-    def __lt__(self, other):
-        # This is needed because bisect does not take a comparison function.
-        if isinstance(other, DjangoBaseField):
-            return self.creation_counter < other.creation_counter
-        return NotImplemented
-
-    def has_default(self):
-        return self._has_default
-
-    def to_python(self, value):
-        return value
-
-    def __hash__(self):
-        # The delete function in the Admin requires a hash
-        return hash(self.creation_counter)
-
-    def clone(self):
-        return self
-    
 
 
 @total_ordering
@@ -158,6 +113,14 @@ class DjangoBaseField(object):
     def clone(self):
         return self
     
+
+class DjangoEmptyField(DjangoBaseField):
+    """ Empty  field """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.remote_field = None
+        
 
 class DjangoPropertyField(DjangoBaseField):
     """
@@ -250,7 +213,6 @@ class DjangoPropertyField(DjangoBaseField):
                         not blank_defined else [])
         return first_choice + choices
 
-
     def clone(self):
         return self
 
@@ -258,17 +220,18 @@ class DjangoPropertyField(DjangoBaseField):
 class DjangoRemoteField(object):
     """ Fake RemoteField to let the Django Admin work """
 
-    def __init__(self, b):
+    def __init__(self, name):
         # Fake this call https://github.com/django/django/blob/ac5cc6cf01463d90aa333d5f6f046c311019827b/django/contrib/admin/widgets.py#L278
-        self.model = b 
+        self.related_name = name 
+        self.related_query_name = name
+        self.model = name
         self.through = SimpleNamespace(_meta=SimpleNamespace(auto_created=True))
-        #pass
-
+    
     def get_related_field(self):
         # Fake call https://github.com/django/django/blob/ac5cc6cf01463d90aa333d5f6f046c311019827b/django/contrib/admin/widgets.py#L282
         # from the Django Admin
         return SimpleNamespace(name=self.model.pk.target)
-
+       
 
 class DjangoRelationField(DjangoBaseField):
     """
@@ -314,19 +277,26 @@ class DjangoRelationField(DjangoBaseField):
             self.form_class = DjangoFormFieldMultipleChoice 
     
         # Need to load the related model in so we can fetch
-        # all nodes. This solution, instead of using the app
-        # registry is far from idea, because it can cause
-        # circular imports
-
-        a = import_module(self.prop.module_name)
-        b = getattr(a, self.prop._raw_class)
-        #self._related_model = b 
-
-        
-        self.remote_field = DjangoRemoteField(b)
+        # all nodes. 
+        self.remote_field = DjangoRemoteField(self.prop._raw_class)
 
         super().__init__()
-        
+
+    def set_attributes_from_rel(self):
+        """ From https://github.com/django/django/blob/1be99e4e0a590d9a008da49e8e3b118b57e14075/django/db/models/fields/related.py#L393 """
+        self.name = (
+            self.name or
+            (self.remote_field.model._meta.model_name + '_' + self.remote_field.model._meta.pk.name)
+        )
+        if self.verbose_name is None:
+            self.verbose_name = self.remote_field.model._meta.verbose_name
+        # self.remote_field.set_field_name()
+
+    def do_related_class(self, other, cls):
+        """ from https://github.com/django/django/blob/1be99e4e0a590d9a008da49e8e3b118b57e14075/django/db/models/fields/related.py#L402 """
+        self.set_attributes_from_rel()
+        # self.contribute_to_related_class(other, self.remote_field)
+
     def value_from_object(self, instance):
         instance_relation = getattr(instance, self.name)
         node_ids_selected = []
@@ -405,7 +375,6 @@ class DjangoRelationField(DjangoBaseField):
         related_model = current_apps.get_model(self.prop.module_name.split('.')[-2],
             self.prop._raw_class)
 
-
         # If ChoiceField, it is not a list
         data = [data] if not isinstance(data, list) else data  
         
@@ -430,8 +399,7 @@ class DjangoRelationField(DjangoBaseField):
 
         if self.prop.manager is ZeroOrOne:
             node_options = BLANK_CHOICE_DASH.copy()
-
-    
+   
         for this_object in related_model.nodes.all():
             node_options.append((this_object.pk, this_object.__str__))
 
@@ -451,6 +419,36 @@ class DjangoRelationField(DjangoBaseField):
         """
 
         return DjangoEmptyField()
+
+    def contribute_to_class(self, cls, name, private_only=False, **kwargs):
+        """ Modified from https://github.com/django/django/blob/2a66c102d9c674fadab252a28d8def32a8b626ec/django/db/models/fields/related.py#L305 """
+        #super().contribute_to_class(cls, name, private_only=private_only, **kwargs)
+        self.opts = cls._meta
+
+        if not cls._meta.abstract:
+            if self.remote_field.related_name:
+                related_name = self.remote_field.related_name
+            else:
+                related_name = self.opts.default_related_name
+            if related_name:
+                related_name = related_name % {
+                    'class': cls.__name__.lower(),
+                    'model_name': cls._meta.model_name.lower(),
+                    'app_label': cls._meta.app_label.lower()
+                }
+                self.remote_field.related_name = related_name
+
+            if self.remote_field.related_query_name:
+                related_query_name = self.remote_field.related_query_name % {
+                    'class': cls.__name__.lower(),
+                    'app_label': cls._meta.app_label.lower(),
+                }
+                self.remote_field.related_query_name = related_query_name
+
+            def resolve_related_class(model, related, field):
+                field.remote_field.model = related
+                field.do_related_class(related, model)
+            lazy_related_operation(resolve_related_class, cls, self.remote_field.model, field=self)
 
 
 class Query:
@@ -496,24 +494,27 @@ class MetaClass(NodeMeta):
 
         # Needed to run pytest, after adding app/model register
         setattr(new_cls, "_base_manager", NeoManager(new_cls))
-       
+
+        if new_cls.__module__ is __package__: # Do not populate DjangoNode
+            pass
+        elif new_cls.__module__.split('.')[-2] == 'tests': # Also skip test signals
+            pass
+        else:
+            
+            meta = getattr(new_cls, 'Meta', None)
+            current_apps.register_model(new_cls.__module__.split('.')[-2],  new_cls)
+
         return new_cls
 
 
 class DjangoNode(StructuredNode, metaclass=MetaClass):
     __abstract_node__ = True
-
-    
+  
     @classproperty
     def _meta(self):
 
         if hasattr(self.Meta, 'unique_together'):
             raise NotImplementedError('unique_together property not supported by neomodel')
-
-    
-        #def can_migrate(self, connection):
-        #    return False
-
 
         # Need a ModelState for the admin to delete an object
         self._state = ModelState() 
@@ -539,20 +540,21 @@ class DjangoNode(StructuredNode, metaclass=MetaClass):
                 self.pk = AliasProperty(to=key)
         
         for key, relation in self.__all_relationships__:
-            opts.add_field(DjangoRelationField(relation, key), getattr(prop, 'private', False))
+            new_relation_field = DjangoRelationField(relation, key)
+            new_relation_field.contribute_to_class(self, key)
+            opts.add_field(new_relation_field, getattr(prop, 'private', False))
+
+        # Need to do some model reloading here ^^
 
         # Register the model in the Django app registry. 
         # Django will try to clone to make a ModelState and upon cloning
         # the relations will result in an empty object, so there are no
         # circular imports
+        #current_apps.register_model(self.__module__.split('.')[-2],  self)
         
-        #raise Warning(self.__module__.split('.')[-2])
-        current_apps.register_model(self.__module__.split('.')[-2],  self)
 
         return opts
 
-   
-   
     @classmethod
     def check(cls, **kwargs):
         """ Needed for app registry, always provide empty list of errors """
