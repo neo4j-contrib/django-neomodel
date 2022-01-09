@@ -365,9 +365,11 @@ class DjangoRelationField(DjangoBaseField):
             self.prop._raw_class)
 
         # Internals used by save_form_data to 
+        # TODO: first get list of connected nodes, so don't run lots of disconnects
         for this_object in should_not_be_connected:
             remover = related_model.nodes.get_or_none(pk=this_object)
-            instance_relation.disconnect(remover)
+            if remover:
+                instance_relation.disconnect(remover)
 
     def _connect_node(self, data, instance_relation):
         """ Given a list pk's, add the relationship """
