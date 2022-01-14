@@ -7,6 +7,8 @@ from django import forms
 from django.db.models.fields import BLANK_CHOICE_DASH
 
 from neomodel import db, clear_neo4j_database
+  
+from django.apps import AppConfig, apps
 
 GEEKS_CHOICES =(('available', 'A'),
             ('on_loan', 'L'),
@@ -90,7 +92,6 @@ class BookFormTest(DjangoTestCase):
 
             class Meta:
                 model = Book
-                fields = ('title', 'status', 'format',)
 
                 fields = ('title', 'status', 'format', 'authored_by', 'shelf')
          
@@ -242,3 +243,24 @@ class BookFormTest(DjangoTestCase):
         # but it should already have chooked on receiving 2 pks?! 
         bf.is_valid()
         self.assertFalse(bf.is_valid())
+
+    def test_app_registry(self):
+        """
+        To parse the relationships, models need to be loaded in the app registry
+        """
+        
+        model_return = apps.get_model('someapp','book')
+        self.assertEqual(model_return, Book)
+
+        model_return = apps.get_model('someapp','Author')
+        self.assertEqual(model_return, Author)
+
+        model_return = apps.get_model('someapp','Shelf')
+        self.assertEqual(model_return, Shelf)
+
+    def test_app_registry_non_model(self):
+        import pytest
+        with pytest.raises(Exception) as execinfo:
+            model_return = apps.get_model('someapp','nonxsitingmodel')
+ 
+        assert execinfo.value.args[0] == "App 'someapp' doesn't have a 'nonxsitingmodel' model."
