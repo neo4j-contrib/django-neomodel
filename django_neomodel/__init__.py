@@ -3,7 +3,7 @@ from functools import total_ordering
 from django.db.models import signals
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.db.models.base import ModelState
-from django.db.models import ManyToManyField
+from django.db.models import ManyToManyField, DateField, DateTimeField
 
 from django.conf import settings
 from django.forms import fields as form_fields
@@ -151,6 +151,7 @@ class DjangoPropertyField(DjangoBaseField):
         self.label = prop.label if prop.label else name
 
         form_cls = getattr(prop, 'form_field_class', 'Field')  # get field string
+        self.form_clsx = form_cls  # Use for class faking in __class__
         self.form_class = getattr(form_fields, form_cls, form_fields.CharField)
 
         self._has_default = prop.has_default
@@ -176,7 +177,7 @@ class DjangoPropertyField(DjangoBaseField):
                     'help_text': self.help_text}
 
         if self.has_default():
-                defaults['initial'] = self.prop.default_value()
+            defaults['initial'] = self.prop.default_value()
 
         if self.choices:
             # Fields with choices get special treatment.
@@ -195,9 +196,15 @@ class DjangoPropertyField(DjangoBaseField):
                     del kwargs[k]
 
         defaults.update(kwargs)
+
+        # This needs to be fixed but at https://github.com/django/django/blob/dc9deea8e85641695e489e43ed5d5638134c15c7/django/contrib/admin/options.py#L80
+        # the Admin injects a form_class. For now just remove this
+        defaults.pop('form_class', None)
+
         return self.form_class(**defaults)
 
     def get_choices(self, include_blank=True):
+        
         blank_defined = False
         blank_choice = BLANK_CHOICE_DASH
         choices = list(self.choices) if self.choices else []
@@ -216,6 +223,20 @@ class DjangoPropertyField(DjangoBaseField):
     def clone(self):
         return self
 
+    @property
+    def __class__(self):
+        # Fake the class for 
+        # https://github.com/django/django/blob/dc9deea8e85641695e489e43ed5d5638134c15c7/django/contrib/admin/options.py#L144
+        # so we can get the admin Field specific widgets to work, ie the DateTime widget
+        
+        if self.form_clsx == 'DateField':
+            return DateField
+        elif self.form_clsx == 'DateTimeField':
+            return DateTimeField
+        else:
+            return DjangoBaseField
+
+
 
 class DjangoRemoteField(object):
     """ Fake RemoteField to let the Django Admin work """
@@ -231,7 +252,8 @@ class DjangoRemoteField(object):
         # Fake call https://github.com/django/django/blob/ac5cc6cf01463d90aa333d5f6f046c311019827b/django/contrib/admin/widgets.py#L282
         # from the Django Admin
         return SimpleNamespace(name=self.model.pk.target)
-       
+    
+
 
 class DjangoRelationField(DjangoBaseField):
     """
@@ -250,9 +272,15 @@ class DjangoRelationField(DjangoBaseField):
         # so we can get the admin ManyToMany field widgets to work
         return ManyToManyField
 
+    
     def __init__(self, prop, name):
         self.prop = prop
-        self.choices = None 
+        self.choices = None
+        # See https://github.com/django/django/blob/2a66c102d9c674fadab252a28d8def32a8b626ec/django/contrib/admin/options.py#L140
+        # if db_field.choices:
+        #    return self.formfield_for_choice_field(db_field, request, **kwargs)
+        # So set this to None
+
         
         self.required = False
         if prop.manager is OneOrMore or prop.manager is One:
@@ -280,7 +308,9 @@ class DjangoRelationField(DjangoBaseField):
         # all nodes. 
         self.remote_field = DjangoRemoteField(self.prop._raw_class)
 
+        
         super().__init__()
+
 
     def set_attributes_from_rel(self):
         """ From https://github.com/django/django/blob/1be99e4e0a590d9a008da49e8e3b118b57e14075/django/db/models/fields/related.py#L393 """
