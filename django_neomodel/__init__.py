@@ -19,8 +19,6 @@ __package__ = 'django_neomodel'
 __version__ = '0.0.6'
 
 
-default_app_config = 'django_neomodel.apps.NeomodelConfig'
-
 
 def classproperty(f):
     class cpf(object):
