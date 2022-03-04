@@ -1,7 +1,7 @@
 import re
 import sys
 
-from neomodel import drop_indexes, db
+from neomodel import db
 
 def drop_constraints(quiet=True, stdout=None):
     """
