@@ -3,11 +3,10 @@ from functools import total_ordering
 from django.db.models import signals
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.db.models.base import ModelState
-from django.db.models import ManyToManyField, DateField, DateTimeField
+from django.db.models import ManyToManyField, DateField
 
 from django.conf import settings
 from django.forms import fields as form_fields
-from django.forms import ModelMultipleChoiceField as form_ModelMultipleChoiceField 
 from django.db.models.options import Options
 from django.core.exceptions import ValidationError 
 
@@ -19,13 +18,10 @@ from neomodel.cardinality import OneOrMore, One, ZeroOrOne, ZeroOrMore
 from types import SimpleNamespace
 from django.apps import apps as current_apps
 
+from django.db.models.fields.related import lazy_related_operation
+
 # Need to following to get the relationships to work
 RECURSIVE_RELATIONSHIP_CONSTANT = 'self'
-
-from django.db.models.fields.related import resolve_relation, RECURSIVE_RELATIONSHIP_CONSTANT, lazy_related_operation
-from django.db.models.utils import make_model_tuple
-from functools import partial
-
 
 __author__ = 'Robin Edwards'
 __email__ = 'robin.ge@gmail.com'
@@ -158,7 +154,7 @@ class DjangoPropertyField(DjangoBaseField):
         self.required = prop.required
         self.blank = not self.required
         self.choices = getattr(prop, 'choices', None)
-
+    
         super().__init__()
 
     def save_form_data(self, instance, data):
@@ -181,8 +177,10 @@ class DjangoPropertyField(DjangoBaseField):
 
         if self.choices:
             # Fields with choices get special treatment.
-            include_blank = (not self.required or
+            # So following this: https://github.com/django/django/blob/35c2474f168fd10ac50886024d5879de81be5bd3/django/db/models/fields/__init__.py#L1005
+            include_blank = (not self.required and
                              not (self.has_default() or 'initial' in kwargs))
+                   
             defaults['choices'] = self.get_choices(include_blank=include_blank)
             defaults['coerce'] = self.to_python
 
@@ -209,13 +207,16 @@ class DjangoPropertyField(DjangoBaseField):
         blank_choice = BLANK_CHOICE_DASH
         choices = list(self.choices) if self.choices else []
         if issubclass(type(self.choices), dict):
-            # Ensure list of tuples with proper key-value pairing
+            # Ensure list of tuples with proper key-value pairing when passing dict
             choices = [(k, v) for k, v in self.choices.items()] 
+        
         for choice, __ in choices:
             if choice in ('', None):
                 blank_defined = True
                 break
-
+        
+        # For now overwrite include_blank, so neomodel will not error on '' not being in self.choices
+        include_blank = False 
         first_choice = (blank_choice if include_blank and
                         not blank_defined else [])
         return first_choice + choices
@@ -227,15 +228,15 @@ class DjangoPropertyField(DjangoBaseField):
     def __class__(self):
         # Fake the class for 
         # https://github.com/django/django/blob/dc9deea8e85641695e489e43ed5d5638134c15c7/django/contrib/admin/options.py#L144
-        # so we can get the admin Field specific widgets to work, ie the DateTime widget
+        # so we can get the admin Field specific widgets to work, ie the Date widget
+        # the SplitDateTimewidget (which is invoked by the admin when a DateTimeField is passed) doesn't work yet.
         
         if self.form_clsx == 'DateField':
             return DateField
-        elif self.form_clsx == 'DateTimeField':
-            return DateTimeField
+        # elif self.form_clsx == 'DateTimeField':
+        #    return DateTimeField
         else:
             return DjangoBaseField
-
 
 
 class DjangoRemoteField(object):
@@ -254,7 +255,6 @@ class DjangoRemoteField(object):
         return SimpleNamespace(name=self.model.pk.target)
     
 
-
 class DjangoRelationField(DjangoBaseField):
     """
     Fake Django model field object which wraps a neomodel Relationship
@@ -272,7 +272,6 @@ class DjangoRelationField(DjangoBaseField):
         # so we can get the admin ManyToMany field widgets to work
         return ManyToManyField
 
-    
     def __init__(self, prop, name):
         self.prop = prop
         self.choices = None
@@ -281,7 +280,6 @@ class DjangoRelationField(DjangoBaseField):
         #    return self.formfield_for_choice_field(db_field, request, **kwargs)
         # So set this to None
 
-        
         self.required = False
         if prop.manager is OneOrMore or prop.manager is One:
             self.required = True
@@ -307,10 +305,8 @@ class DjangoRelationField(DjangoBaseField):
         # Need to load the related model in so we can fetch
         # all nodes. 
         self.remote_field = DjangoRemoteField(self.prop._raw_class)
-
-        
+     
         super().__init__()
-
 
     def set_attributes_from_rel(self):
         """ From https://github.com/django/django/blob/1be99e4e0a590d9a008da49e8e3b118b57e14075/django/db/models/fields/related.py#L393 """
@@ -527,13 +523,17 @@ class MetaClass(NodeMeta):
         # Needed to run pytest, after adding app/model register
         setattr(new_cls, "_base_manager", NeoManager(new_cls))
 
-        if new_cls.__module__ is __package__: # Do not populate DjangoNode
+        if new_cls.__module__ is __package__:  # Do not populate DjangoNode
             pass
-        elif new_cls.__module__.split('.')[-2] == 'tests': # Also skip test signals
+        elif new_cls.__module__.split('.')[-2] == 'tests':  # Also skip test signals
             pass
         else:
             
             meta = getattr(new_cls, 'Meta', None)
+            # Register the model in the Django app registry. 
+            # Django will try to clone to make a ModelState and upon cloning
+            # the relations will result in an empty object, so there are no
+            # circular imports
             current_apps.register_model(new_cls.__module__.split('.')[-2],  new_cls)
 
         return new_cls
@@ -575,16 +575,7 @@ class DjangoNode(StructuredNode, metaclass=MetaClass):
             new_relation_field = DjangoRelationField(relation, key)
             new_relation_field.contribute_to_class(self, key)
             opts.add_field(new_relation_field, getattr(prop, 'private', False))
-
-        # Need to do some model reloading here ^^
-
-        # Register the model in the Django app registry. 
-        # Django will try to clone to make a ModelState and upon cloning
-        # the relations will result in an empty object, so there are no
-        # circular imports
-        #current_apps.register_model(self.__module__.split('.')[-2],  self)
         
-
         return opts
 
     @classmethod

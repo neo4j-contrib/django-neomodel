@@ -248,12 +248,15 @@ class BookFormTest(DjangoTestCase):
         """
         To parse the relationships, models need to be loaded in the app registry
         """
+        #from django.apps.registry import Apps
         
         model_return = apps.get_model('someapp','book')
         self.assertEqual(model_return, Book)
 
+
         model_return = apps.get_model('someapp','Author')
         self.assertEqual(model_return, Author)
+
 
         model_return = apps.get_model('someapp','Shelf')
         self.assertEqual(model_return, Shelf)
