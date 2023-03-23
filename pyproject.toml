@@ -49,5 +49,4 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "--ds=tests.settings"
 testpaths = "tests"
