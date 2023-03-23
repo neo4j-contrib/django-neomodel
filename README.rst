@@ -197,7 +197,7 @@ Go to http://localhost:8000/admin/
 Running Tests
 ===================
 
-Setup Neo4j Desktop with a local database with password 'foobar' and version 4.1.2 (current version when this was written).
+Setup Neo4j Desktop with a local database with password 'foobarbaz' and version 4.4.x (Neo4j LTS version).
 
 Commands to run tests::
 
