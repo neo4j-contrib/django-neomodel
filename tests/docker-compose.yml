@@ -5,7 +5,9 @@ services:
     build:
       context: ../
       dockerfile: ./tests/Dockerfile
-    command: '/bin/bash -c "chmod +x /usr/src/app/tests/docker-entrypoint.sh && /usr/src/app/tests/docker-entrypoint.sh"'
+    command: >
+      sh -c "chmod +x /usr/src/app/tests/docker-entrypoint.sh &&
+      /usr/src/app/tests/docker-entrypoint.sh"
     volumes:
       - ..:/usr/src/app
     ports:
@@ -13,19 +15,19 @@ services:
     expose:
       - 8000
     depends_on:
-      - neo4j_db
+      - neo4j
     links:
-      - neo4j_db
+      - neo4j
     environment:
-      - NEO4J_BOLT_URL=bolt://neo4j:foobarbaz@neo4j_db:7687
+      - NEO4J_BOLT_URL=bolt://neo4j:foobarbaz@neo4j:7687
       - DJANGO_SETTINGS_MODULE=settings
       - DJANGO_SUPERUSER_PASSWORD
       - DJANGO_SUPERUSER_EMAIL
       - DJANGO_SUPERUSER_USERNAME
 
 
-  neo4j_db:
-    image: neo4j:4.2-enterprise
+  neo4j:
+    image: neo4j:4.4-enterprise
     ports:
       - "7474:7474"
       - "7687:7687"
