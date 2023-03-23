@@ -35,6 +35,7 @@ jobs:
         pip install -e '.[dev]'
     - name: Test with pytest
       run: |
+        export DJANGO_SETTINGS_MODULE=settings
         tests/manage.py install_labels
         tests/manage.py migrate
         pytest
