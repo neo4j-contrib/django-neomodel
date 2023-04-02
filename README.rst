@@ -62,6 +62,7 @@ Now in a view `yourapp/views.py`::
 
 In your `yourapp/admin.py`::
 
+    from django.contrib import admin as dj_admin
     from django_neomodel import admin as neo_admin
     from .models import Book
 
