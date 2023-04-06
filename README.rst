@@ -168,8 +168,8 @@ Delete all nodes in your database, warning there is no confirmation!
 Requirements
 ============
 
-- Python 3.6+
-- neo4j 3.5+
+- Python 3.7+
+- neo4j 4.x
 
 .. image:: https://badges.gitter.im/Join%20Chat.svg
    :alt: Join the chat at https://gitter.im/robinedwards/neomodel
@@ -197,16 +197,14 @@ Go to http://localhost:8000/admin/
 Running Tests
 ===================
 
-Setup Neo4j Desktop with a local database with password 'foobar' and version 4.1.2 (current version when this was written).
+Setup Neo4j Desktop with a local database with password 'foobarbaz' and version 4.4.x (Neo4j LTS version).
 
 Commands to run tests::
 
     # create local venv and install dependencies.
-    $ python3 -m venv venv; source venv/bin/activate; python setup.py develop; export DJANGO_SETTINGS_MODULE=tests.settings;
-    # Go to tests
-    $ cd tests/
-    $ ./manage.py install_labels
-    $ ./manage.py migrate
+    $ pip install -e '.[dev]'; export DJANGO_SETTINGS_MODULE=tests.settings;
+    $ tests/manage.py install_labels
+    $ tests/manage.py migrate
     $ pytest
 
     # example output:

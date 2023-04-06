@@ -16,3 +16,4 @@ development.env
 \#*\#
 tests/test.db
 .DS_Store
+.vscode
