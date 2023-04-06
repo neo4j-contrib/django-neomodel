@@ -15,7 +15,7 @@ Warnings
 * Admin functionality is very experimental. `Please see todos / issues here <https://github.com/neo4j-contrib/django-neomodel/projects/1>`_
 
 Live Examples (add yours here)
-=======================
+==============================
 
 * _To be fixed_ `ResoTrack <https://resotrack.herokuapp.com/>`_
 
