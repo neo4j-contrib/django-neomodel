@@ -9,9 +9,6 @@ This module allows you to use the neo4j_ graph database with Django using neomod
 .. _neo4j: https://www.neo4j.org
 .. _neomodel: http://neomodel.readthedocs.org
 
-.. image:: https://secure.travis-ci.org/neo4j-contrib/django-neomodel.png
-    :target: https://secure.travis-ci.org/neo4j-contrib/django-neomodel/
-
 Warnings
 =======================
 
@@ -20,7 +17,7 @@ Warnings
 Live Examples (add yours here)
 =======================
 
-* `ResoTrack <https://resotrack.herokuapp.com/>`_
+* _To be fixed_ `ResoTrack <https://resotrack.herokuapp.com/>`_
 
 Getting started
 ===============
@@ -31,7 +28,7 @@ Install the module::
 
 Add the following settings to your `settings.py`::
 
-    NEOMODEL_NEO4J_BOLT_URL = os.environ.get('NEO4J_BOLT_URL', 'bolt://neo4j:test@localhost:7687')
+    NEOMODEL_NEO4J_BOLT_URL = os.environ.get('NEO4J_BOLT_URL', 'bolt://neo4j:foobarbaz@localhost:7687')
 
     # Make sure django_neomodel comes before your own apps
     INSTALLED_APPS = (
