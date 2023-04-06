@@ -1,3 +1,13 @@
+Version 0.1.0 2023-04
+* Upgrade neomodel dependency to version 5.0.0
+* Adds support for all Neo4j 5.x versions, and 4.4 (LTS)
+* Drops support of Neo4j version 4.3 and under
+
+Version 0.0.8 2023-03
+* Upgrade neomodel dependency to version 4.0.10
+* Adds support for all Neo4j 4.x versions
+* Adds support for Python up to 3.11
+
 Version 0.0.7 2021-07-06
  * Added Docker Example
  * Django admin regsister for nodes is now available (beta)

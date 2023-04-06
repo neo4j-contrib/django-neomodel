@@ -9,18 +9,15 @@ This module allows you to use the neo4j_ graph database with Django using neomod
 .. _neo4j: https://www.neo4j.org
 .. _neomodel: http://neomodel.readthedocs.org
 
-.. image:: https://secure.travis-ci.org/neo4j-contrib/django-neomodel.png
-    :target: https://secure.travis-ci.org/neo4j-contrib/django-neomodel/
-
 Warnings
 =======================
 
 * Admin functionality is very experimental. `Please see todos / issues here <https://github.com/neo4j-contrib/django-neomodel/projects/1>`_
 
 Live Examples (add yours here)
-=======================
+==============================
 
-* `ResoTrack <https://resotrack.herokuapp.com/>`_
+* _To be fixed_ `ResoTrack <https://resotrack.herokuapp.com/>`_
 
 Getting started
 ===============
@@ -31,7 +28,7 @@ Install the module::
 
 Add the following settings to your `settings.py`::
 
-    NEOMODEL_NEO4J_BOLT_URL = os.environ.get('NEO4J_BOLT_URL', 'bolt://neo4j:test@localhost:7687')
+    NEOMODEL_NEO4J_BOLT_URL = os.environ.get('NEO4J_BOLT_URL', 'bolt://neo4j:foobarbaz@localhost:7687')
 
     # Make sure django_neomodel comes before your own apps
     INSTALLED_APPS = (
@@ -169,7 +166,7 @@ Requirements
 ============
 
 - Python 3.7+
-- neo4j 4.x
+- neo4j 5.x, 4.4 (LTS)
 
 .. image:: https://badges.gitter.im/Join%20Chat.svg
    :alt: Join the chat at https://gitter.im/robinedwards/neomodel
@@ -197,7 +194,7 @@ Go to http://localhost:8000/admin/
 Running Tests
 ===================
 
-Setup Neo4j Desktop with a local database with password 'foobarbaz' and version 4.4.x (Neo4j LTS version).
+Setup Neo4j Desktop with a local database with password 'foobarbaz' and version 5.x or 4.4.x (Neo4j LTS version).
 
 Commands to run tests::
 
