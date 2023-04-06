@@ -1,6 +1,7 @@
-Version 0.0.9 2023-04
+Version 0.1.0 2023-04
 * Upgrade neomodel dependency to version 5.0.0
 * Adds support for all Neo4j 5.x versions, and 4.4 (LTS)
+* Drops support of Neo4j version 4.3 and under
 
 Version 0.0.8 2023-03
 * Upgrade neomodel dependency to version 4.0.10
