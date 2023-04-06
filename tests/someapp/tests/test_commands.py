@@ -11,7 +11,7 @@ class TestCommands(TestCase):
     def test_install_labels_command(self):
         out = StringIO()
         call_command('install_labels', stdout=out)
-        self.assertIn('Creating unique constraint for title on label Book for class tests.someapp.models.Book', out.getvalue())
+        self.assertIn('Creating node unique constraint for title on label Book for class tests.someapp.models.Book', out.getvalue())
 
     def test_clear_neo4j_command(self):
         out = StringIO()

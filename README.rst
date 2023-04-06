@@ -169,7 +169,7 @@ Requirements
 ============
 
 - Python 3.7+
-- neo4j 4.x
+- neo4j 5.x, 4.4 (LTS)
 
 .. image:: https://badges.gitter.im/Join%20Chat.svg
    :alt: Join the chat at https://gitter.im/robinedwards/neomodel
@@ -197,7 +197,7 @@ Go to http://localhost:8000/admin/
 Running Tests
 ===================
 
-Setup Neo4j Desktop with a local database with password 'foobarbaz' and version 4.4.x (Neo4j LTS version).
+Setup Neo4j Desktop with a local database with password 'foobarbaz' and version 5.x or 4.4.x (Neo4j LTS version).
 
 Commands to run tests::
 

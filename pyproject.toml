@@ -33,10 +33,10 @@ classifiers = [
     "Topic :: Database",
 ]
 dependencies = [
-    "neomodel~=4.0.10",
+    "neomodel~=5.0.0",
     'django~=2.2'
 ]
-version='0.0.8'
+version='0.0.9'
 
 [project.urls]
 repository = "http://github.com/robinedwards/django-neomodel"
