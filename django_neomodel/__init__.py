@@ -253,12 +253,12 @@ class DjangoNode(StructuredNode, metaclass=MetaClass):
             node = cls.nodes.get_or_none(**{key: val})
 
             # if exists and not this node
-            if node and node.id != getattr(self, "id", None):
+            if node and node.element_id != getattr(self, "element_id", None):
                 raise ValidationError({key, "already exists"})
 
     def pre_save(self):
         if getattr(settings, "NEOMODEL_SIGNALS", True):
-            self._creating_node = getattr(self, "id", None) is None
+            self._creating_node = getattr(self, "element_id", None) is None
             signals.pre_save.send(sender=self.__class__, instance=self)
 
     def post_save(self):
