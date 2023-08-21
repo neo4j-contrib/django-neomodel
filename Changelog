@@ -1,3 +1,7 @@
+Version 0.1.1 2023-08
+* Bump neomodel to 5.1.0 - full support of Neo4j version 5.x (and 4.4 LTS)
+* Support higher versions of Django (> 2.2)
+
 Version 0.1.0 2023-04
 * Upgrade neomodel dependency to version 5.0.0
 * Adds support for all Neo4j 5.x versions, and 4.4 (LTS)
