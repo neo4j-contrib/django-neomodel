@@ -18,6 +18,7 @@ Live Examples (add yours here)
 ===============================
 
 * `ResoTrack <https://resotrack.herokuapp.com/>`_
+* `Syracuse <https://syracuse.1145.am>`_: a database of company linkages created from unstructured text. Repo at `syracuse-neo <https://github.com/alanbuxton/syracuse-neo.git>`_
 
 Getting started
 ===============
