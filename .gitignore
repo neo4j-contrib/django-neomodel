@@ -4,6 +4,7 @@ venv3
 build
 doc/build
 dist
+.venv
 *.egg-info
 *.swp
 *.swn

@@ -9,19 +9,17 @@ where = ["./"]
 
 [project]
 name = "django_neomodel"
-authors = [
-    {name = "Robin Edwards", email = "robin.ge@gmail.com"},
-]
+authors = [{ name = "Robin Edwards", email = "robin.ge@gmail.com" }]
 maintainers = [
-    {name = "Athanasios Anastasiou", email = "athanastasiou@gmail.com"},
-    {name = "Cristina Escalante"},
-    {name = "Marius Conjeaud", email = "marius.conjeaud@outlook.com"},
+    { name = "Athanasios Anastasiou", email = "athanastasiou@gmail.com" },
+    { name = "Cristina Escalante" },
+    { name = "Marius Conjeaud", email = "marius.conjeaud@outlook.com" },
 ]
 description = "Use Neo4j with Django!"
 readme = "README.rst"
 requires-python = ">=3.7"
 keywords = ["graph", "neo4j", "django", "plugin", "neomodel"]
-license = {text = "MIT"}
+license = { text = "MIT" }
 classifiers = [
     "Development Status :: 4 - Beta",
     'Intended Audience :: Developers',
@@ -32,21 +30,14 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Topic :: Database",
 ]
-dependencies = [
-    "neomodel~=5.1.0",
-    'django>=2.2'
-]
-version='0.1.1'
+dependencies = ["neomodel~=5.1", 'django>=2.2']
+version = '0.1.1'
 
 [project.urls]
 repository = "http://github.com/robinedwards/django-neomodel"
 
 [project.optional-dependencies]
-dev = [
-    "pytest>=7.1",
-    "pytest-django>=3.10.0",
-    "pytest-cov>=4.0",
-]
+dev = ["pytest>=7.1", "pytest-django>=3.10.0", "pytest-cov>=4.0"]
 
 [tool.pytest.ini_options]
 addopts = "--ds=tests.settings"
