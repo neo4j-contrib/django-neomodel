@@ -33,7 +33,7 @@ classifiers = [
     "Topic :: Database",
 ]
 dependencies = [
-    "neomodel~=5.1.0",
+    "neomodel~=5.2.0",
     'django>=2.2'
 ]
 version='0.1.1'
