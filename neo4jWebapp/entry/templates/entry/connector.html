@@ -1,0 +1,20 @@
+{% extends 'home/base_home.html' %}
+
+{% block bodyContent %}
+
+    <div class="botnav">
+        <a href="/entry/lru">LRU</a>
+        <a href="/entry/port">Port</a>
+        <a href="/entry/connector">Connector</a>
+        <a href="/entry/wire">Wire</a>
+    </div>
+    <div style="padding-left:16px">
+        <h2>Add a Connector</h2>
+        <form class = "form" action="/entry/connector/" method="POST">
+            {% csrf_token %}
+            {{ form }}
+            <button class="form-submit">Save Connector</button>
+        </form>
+    </div>
+
+{% endblock %}

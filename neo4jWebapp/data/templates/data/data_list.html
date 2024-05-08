@@ -1,0 +1,19 @@
+{% comment %} {% extends 'home/base_home.html' %} {% endcomment %}
+
+{% block content %} 
+  <section>  
+  <h1>Data</h1>
+ 
+  {% comment %} {% for data in data %}
+      <article class="post">
+        <h2>
+          <a href="{% url 'data:page' slug=data.slug %}">
+            {{ data.title }}
+          </a>
+        </h2>
+        <p>{{ data.date }}</p>
+        <p>{{ data.body }}</p>
+      </article>
+  {% endfor %} {% endcomment %}
+  </section>
+{% endblock %}

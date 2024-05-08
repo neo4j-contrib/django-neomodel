@@ -1,0 +1,23 @@
+{% extends "userSignIn/base_login.html" %}
+
+{% load static %}
+
+{% comment %} {% block linksContent%}
+    
+{% endblock linksContent%} {% endcomment %}
+
+{% block titleContent %}
+    <title>Neo4j DB Editor User Sign In</title>
+{% endblock titleContent %}
+
+{% block bodyContent %}
+
+    <h2>You have been logged out</h2>
+        
+    <div class="border-top pt-3">
+        <small class="text-muted">
+            <a href="{% url 'login' %}">Log In Again</a>
+        </small>
+    </div>
+
+{% endblock bodyContent %}

@@ -1,0 +1,18 @@
+{% extends "userSignIn/base_login.html" %}
+{% load crispy_forms_tags %}
+
+{% load static %}
+
+{% comment %} {% block linksContent%}
+    
+{% endblock linksContent%} {% endcomment %}
+
+{% block titleContent %}
+    <title>User Profile</title>
+{% endblock titleContent %}
+
+{% block bodyContent %}
+
+    <h1>{{ user.username }}</h1>
+
+{% endblock bodyContent %}

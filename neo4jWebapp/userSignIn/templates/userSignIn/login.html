@@ -1,0 +1,37 @@
+{% extends "userSignIn/base_login.html" %}
+{% load crispy_forms_tags %}
+
+{% load static %}
+
+{% comment %} {% block linksContent%}
+    
+{% endblock linksContent%} {% endcomment %}
+
+{% block titleContent %}
+    <title>User LogIn</title>
+{% endblock titleContent %}
+
+{% block bodyContent %}
+
+    <div class="content-section">
+        <form method="POST">
+            {% csrf_token %}
+
+            <fieldset class"form-group">
+                <legend class="border-bottom mb-4">Log In</legend>
+                {{ form|crispy }}
+            </fieldset>
+
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit">Log In</button>
+
+            </div>
+        </form>
+        <div class="border-top pt-3">
+            <small class="text-muted">
+                Don't have an account? <a class="ml-2" href="{% url 'userSignIn' %}">Sign Up</a>
+            </small>
+        </div>
+    </div>
+
+{% endblock bodyContent %}

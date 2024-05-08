@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<script src="{% static '/userSignIn/search_results.js' %}"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+    
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    {% comment %} <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> {% endcomment %}
+    {% comment %} <link href='https://fonts.googleapis.com/css?family=Titillium+Web:400,300,600' rel='stylesheet' type='text/css'> {% endcomment %}
+    {% comment %} <link rel="stylesheet" type="text/css" href="{%static 'userSignIn/main.css' %}"> {% endcomment %}
+
+    {% block titleContent %}{% endblock %}
+
+</head>
+
+<style>
+
+    body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background-image: url("https://sites.breakingmedia.com/uploads/sites/3/2022/06/220608_dvids_eb4_closeup_3765461-scaled-e1654704168746-2048x1152.jpg");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-color: rgba(255, 255, 255, 0.6);
+        background-blend-mode: lighten;
+    }
+    
+    .form {
+        max-width: 600px;
+        font-size: 1rem;
+        padding: 1rem;
+        display: flex;
+        flex-flow: column;
+        gap: 1rem;
+    }
+    
+    .topnav {
+        overflow: hidden;
+        background-color: #191919;
+    }
+    
+    .botnav {
+        overflow: hidden;
+        background-color: #004789;
+    }
+    
+    .topnav a {
+        float: left;
+        color: white;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+        font-size: 17px;
+    }
+    
+    .topnav a:hover {
+        background-color: #ddd;
+        color: black;
+    }
+    
+    .topnav a.active {
+        background-color: #004789;
+        color: white;
+    }
+    
+    .botnav a {
+        float: left;
+        color: white;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+        font-size: 17px;
+    }
+    
+    .botnav a:hover {
+        background-color: #ddd;
+        color: black;
+    }
+    
+    .botnav a.active {
+        background-color: #004789;
+        color: white;
+    }
+
+    ul {
+        overflow:hidden;
+        overflow-y:scroll;
+        height: 100px;
+        width: 500px; 
+    }
+</style>
+
+<body>
+    <div id="navbarToggle">
+        <div style="display:inline-block">
+            <a class="nav-item nav-link" href="{% url 'home-page' %}">Home</a>
+            {% comment %} <a class="nav-item nav-link" href="{% url 'blog-about' %}">About</a> {% endcomment %}
+            {% if user.is_authenticated %}
+            <a class="nav-item nav-link" href="{% url 'entry-page' %}">Entry</a>
+            {% comment %} <a class="nav-item nav-link" href="{% url 'data-page' %}">Data</a> {% endcomment %}
+            {% endif %}
+        </div>
+        <div style="display:inline-block">
+            {% if user.is_authenticated %}
+            <a class="nav-item nav-link" href="{% url 'profile' %}">Profile</a>
+            <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
+            {% else %}
+            <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
+            <a class="nav-item nav-link" href="{% url 'userSignIn' %}">Sign Up</a>
+            {% endif %}
+        </div>
+    </div>
+      
+    <div style="padding-left:16px">
+        {% block bodyContent %}{% endblock %}
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+</html>
