@@ -8,13 +8,25 @@
         <a href="/entry/connector">Connector</a>
         <a href="/entry/wire">Wire</a>
     </div>
-    <div style="padding-left:16px">
-        <h2>Add a LRU</h2>
-        <form class = "form" action="/entry/lru/" method="POST">
-            {% csrf_token %}
-            {{ form }}
-            <button class="btn btn-outline-info" type="submit">Save LRU</button>
-        </form>
+    <div class="split left">
+        <div class="centered">
+            <div style="padding-left:16px">
+                {% comment %} <h2>Add a LRU</h2> {% endcomment %}
+                <form class = "form" action="/entry/lru/" method="POST">
+                    {% csrf_token %}
+                    {{ form }}
+                    <button class="btn btn-outline-info" type="submit">Save LRU</button>
+                </form>
+            </div>
+            <p>Some text.</p>
+        </div>
+    </div>
+      
+    <div class="split right">
+        <div class="centered">
+            
+            <p>Some text here too.</p>
+        </div>
     </div>
 
 {% endblock %}

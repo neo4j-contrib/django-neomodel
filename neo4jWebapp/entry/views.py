@@ -8,34 +8,35 @@ def entry(request):
 
     global_vars = GLOBAL_VARS()
 
-    status = initNeo4jConnection(global_vars.URI, global_vars.AUTH)
-    if status == -1:
-        messages.error(
-            request, 'You were unable to connect to the Neo4j database.')
-    elif status == 0:
-        messages.success(request, 'You are connected to the Neo4j database!')
+    # status = initNeo4jConnection(global_vars.URI, global_vars.AUTH)
+    # if status == -1:
+    #     messages.error(
+    #         request, 'You were unable to connect to the Neo4j database.')
+    # elif status == 0:
+    #     messages.success(request, 'You are connected to the Neo4j database!')
     return render(request, 'entry/entry.html')
 
 
 def lru(request):
     if request.method == 'POST':
-        LRU_Refdes = request.POST.get('LRU_Refdes')
-        Part_Number = request.POST.get('Part_Number')
-        LRU_Name = request.POST.get('LRU_Name')
-        LRU_SOI = request.POST.get('LRU_SOI')
-        LRU_Cage_Code = request.POST.get('LRU_SOI')
-        Manufacturer = request.POST.get('Manufacturer')
-        Location = request.POST.get('Location')
-        Weight = request.POST.get('Weight')
-        CG_xyz = request.POST.get('CG_xyz')
-        Cooling = request.POST.get('Cooling')
-        Bonding = request.POST.get('Bonding')
-        Model_Number = request.POST.get('Model_Number')
-        Revision = request.POST.get('Revision')
-        Software_Revision = request.POST.get('Software_Revision')
-        User_Comment = request.POST.get('User Comment')
+        LRU_Name = request.POST.get('lru_name')
+        LRU_Refdes = request.POST.get('lru_refdes')
+        Part_Number = request.POST.get('lru_part_num')
+        LRU_SOI = request.POST.get('lru_SOI')
+        LRU_Cage_Code = request.POST.get('lru_cage_code')
+        Manufacturer = request.POST.get('lru_manu')
+        Location = request.POST.get('lru_loc')
+        Weight = request.POST.get('lru_weight')
+        CG_xyz = request.POST.get('lru_cg_xyz')
+        Cooling = request.POST.get('lru_cooling')
+        Bonding = request.POST.get('lru_bonding')
+        Model_Number = request.POST.get('lru_model')
+        Revision = request.POST.get('lru_rev')
+        Software_Revision = request.POST.get('lru_software_rev')
+        User_Comment = request.POST.get('lru_user_comment')
 
-        new_dict = {"LRU_Name": LRU_Name,
+        new_dict = {"node_type": "LRU",
+                    "LRU_Name": LRU_Name,
                     "LRU_Refdes": LRU_Refdes,
                     "Ports": [],
                     "LRU_SOI": LRU_SOI,
@@ -58,11 +59,15 @@ def lru(request):
                     "Created_On": "",
                     "Edited_By": "",
                     "Edited_On": ""}
+        
 
-        new_LRU = LRU()
+        # new_LRU = LRU()
         global_vars = GLOBAL_VARS()
-        new_node = fill_lru_data(new_LRU, new_dict)
-        create_neo_nodes_lru(new_node, global_vars.URI, global_vars.AUTH)
+        # new_node = fill_lru_data(new_LRU, new_dict)
+        # create_neo_nodes_lru(new_node, global_vars.URI, global_vars.AUTH)
+        # node(new_dict, global_vars.URI, global_vars.AUTH)
+        return_list = query_database(new_dict, global_vars.URI, global_vars.AUTH)
+        print(return_list)
     form_lru = forms.CreateLRU()
     return render(request, 'entry/lru.html', {'form': form_lru})
 
@@ -227,3 +232,10 @@ def wire(request):
 
     form_wire = forms.CreateWire()
     return render(request, 'entry/wire.html', {'form': form_wire})
+
+
+def equipment(request):
+    form = forms.CreateLRU()
+    formwire = forms.CreateWire()
+    formport = forms.CreatePort()
+    return render(request, 'entry/equipment.html', { 'form' : form , 'formwire': formwire, 'formport':formport})

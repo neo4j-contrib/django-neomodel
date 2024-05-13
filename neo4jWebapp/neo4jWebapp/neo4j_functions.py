@@ -452,15 +452,95 @@ def update_relations(new_node, node_type, URI, AUTH, driver):
 
 
 def initNeo4jConnection(URI, AUTH):
-
-    driver = GraphDatabase.driver(URI, auth=AUTH)
-    session = driver.session(database="neo4j")
-
-    if not driver.verify_authentication():
+    
+    try:
+        driver = GraphDatabase.driver(URI, auth=AUTH)
+        session = driver.session(database="neo4j")
+        if not driver.verify_authentication():
+            return -1
+        else:
+            return 0
+    except Exception as e:
+        print(e)
         return -1
-    else:
-        return 0
 
+
+def node(in_dict, URI, AUTH):
+
+    node_type = in_dict["node_type"]
+
+    property_list = []
+    for property in in_dict:
+        if property != "node_type":
+            property_list.append(property)
+
+    properties_remaining = len(property_list)
+
+    create_query = ""
+    create_query_node_type = f"CREATE (n:{node_type}"
+    create_query_property = " {"
+
+    for property in property_list:
+
+        properties_remaining = properties_remaining-1
+        property_value = in_dict[property]
+
+        create_query_property += f'{property}:"{property_value}"'
+
+        if properties_remaining > 0:
+            create_query_property = create_query_property + ", "
+        else:
+            create_query_property = create_query_property + "})"
+
+    create_query = create_query_node_type + create_query_property
+
+    # print(create_query)
+
+    with GraphDatabase.driver(URI, auth=AUTH) as driver:
+        with driver.session(database="neo4j") as session:
+            session.run(create_query)
+
+
+def query_database(Item, URI, AUTH):
+
+    # Get type of item being matched to
+    type = Item["node_type"]
+
+    # List of properties excluding type
+    ItemPropLength = len(Item)
+    PropertyList = []
+    for property in Item:
+        if property != "node_type":
+            PropertyList.append(property)
+
+    # Create a property query
+    prop_query = f'MATCH (n:{type}) WHERE '
+    properties_left = len(PropertyList)
+
+    for property in PropertyList:
+
+        properties_left = properties_left - 1
+
+        prop_value = Item[property]
+
+        prop_query += f"n.{property} = "
+        prop_query += f"'{prop_value}'"
+
+        if properties_left > 0:
+            prop_query += f" AND "
+        else:
+            prop_query += f' RETURN n'
+
+    with GraphDatabase.driver(URI, auth=AUTH) as driver:
+        with driver.session(database="neo4j") as session:
+            found_nodes = driver.execute_query(prop_query.format(type))
+
+    query_list = []
+
+    for i in range((len(found_nodes.records))):
+        query_list.append(found_nodes.records[i]["n"]._properties)
+
+    return query_list
 
 # def main():
 #     if initNeo4jConnection < 0:

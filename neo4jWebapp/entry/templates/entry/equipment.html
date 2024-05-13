@@ -1,0 +1,88 @@
+{% extends 'home/base_home.html' %}
+
+{% block scriptContent%}
+function checkEqtype() {
+    var eq = document.getElementById("eq-type").value;
+    var lrutype = document.getElementById("lru-type");
+    var batterytype = document.getElementById("battery-type");
+    var fusetype = document.getElementById("fuse-type");
+
+    if(eq == "lru")
+      lrutype.style.display = "block";
+    else
+      lrutype.style.display = "none";
+    if(eq == "battery")
+      batterytype.style.display = "block";
+    else
+      batterytype.style.display = "none";
+    if(eq == "fuse")
+      fusetype.style.display = "block";
+    else
+      fusetype.style.display = "none";
+}
+{% endblock %}
+
+
+{% block bodyContent %}
+<h2>Enter an Equipment</h2>
+<label for="eq-type">Select an Equipment Type:</label>
+<select name="eq-type" id="eq-type" onchange="checkEqtype()">
+    <optgroup label="Equipment">
+        <option value="lru">LRU</option>
+        <option value="battery">Battery</option>
+        <option value="fuse">Fuse</option>
+        <option value="circuit-breaker">Circuit Breaker</option>
+        <option value="antenna">Antenna</option>
+        <option value="motor">Motor</option>
+    <optgroup label="Logical Component">
+        <option value="resistor">Resistor</option>
+        <option value="diode">Diode</option>
+        <option value="switch">Switch</option>
+        <option value="coupler">Coupler</option>
+        <option value="amp-att">Amplifier/Attenuator</option>
+        <option value="ann">Annunciator</option>
+        <option value="light">Light</option>
+        <option value="capacitor">Capacitor</option>
+        <option value="speaker">Speaker</option>
+        <option value="mic">Microphone</option>
+    <optgroup label="Logical Harness Connector">
+        <option value="connector">Connector</option>
+        <option value="backshell">Backshell</option>
+    <optgroup label="Logical Splice">
+        <option value="splice">Splice</option>
+    <optgroup label="Logical Relay">
+        <option value="relay">Relay</option>
+        <option value="contactor">Contactor</option>
+    <optgroup label="Logical Terminal Block">
+        <option value="terminal-block">Terminal Block</option>
+        <option value="terminal-board">Terminal Board</option>
+        <option value="ground-stud">Ground Stud</option>
+        <option value="ground-block">Ground Block</option>
+    <optgroup label="Logical Busbar">
+        <option value="bus-bar">Busbar</option>
+    <optgroup label="Unassigned">
+        <option value="lug">Lug</option>
+        <option value="other">Other</option>
+</select>
+<div id="lru-type">
+    <form class="form" action="/entry/equipment/" method="POST">
+        {% csrf_token %}
+        {{ form }}
+        </form>
+</div>
+<div id="battery-type">
+    <form class="form" action="/entry/equipment/" method="POST">
+        {% csrf_token %}
+        {{ formwire }}
+        </form>
+</div>
+<div id="fuse-type">
+    <form class="form" action="/entry/equipment/" method="POST">
+        {% csrf_token %}
+        {{ formport }}
+        </form>
+</div>
+<br><br>
+<button class="form-submit">Submit </button>
+
+{% endblock %}

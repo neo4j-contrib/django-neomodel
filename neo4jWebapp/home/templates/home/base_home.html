@@ -93,7 +93,29 @@
         height: 100px;
         width: 500px; 
     }
+
+    .split {
+        height: 95%;
+        width: 49%;
+        position: fixed;
+        {% comment %} z-index: 1; {% endcomment %}
+        {% comment %} top: 0; {% endcomment %}
+        overflow-x: hidden;
+        {% comment %} padding-left: 0px; {% endcomment %}
+      }
+
+    .left {
+        left: 0;
+      }
+
+    .right {
+        right: 0;
+      }
 </style>
+
+<script>
+    {% block scriptContent %}{% endblock %}
+</script>
 
 <body>
     <div id="navbarToggle">
@@ -115,8 +137,16 @@
             {% endif %}
         </div>
     </div>
+    <div class="botnav">
+        <a href="/entry/equipment">Create &amp; Connect</a>
+        {% comment %} <a href="/entry/lru">LRU</a>
+        <a href="/entry/port">Port</a>
+        <a href="/entry/connector">Connector</a>
+        <a href="/entry/wire">Wire</a>
+        <a href="/entry/wire-bundle">Wire Bundle</a> {% endcomment %}
+    </div>
       
-    <div style="padding-left:16px">
+    <div style="padding-left:0px">
         {% block bodyContent %}{% endblock %}
     </div>
 

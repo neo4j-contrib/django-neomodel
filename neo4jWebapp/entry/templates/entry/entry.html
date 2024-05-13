@@ -1,14 +1,7 @@
 {% extends 'home/base_home.html' %}
 
-{% block bodyContent %}
+{% comment %} {% block bodyContent %}
 
-    <div class="botnav">
-        <a href="lru">LRU</a>
-        <a href="port">Port</a>
-        <a href="connector">Connector</a>
-        <a href="wire">Wire</a>
-        {% comment %} <a href="wire_bundle">Wire Bundle</a> {% endcomment %}
-    </div>
     <div style="padding-left:16px">
         <h2>Submit a New Entry</h2>
         <div class="row">
@@ -29,17 +22,12 @@
                     <div class="button-group">
                         <button type="submit" class="btn btn-default" onclick="myFunction()">Select</button>
                         <ul id="searchList">
-                            {% comment %} <li><a href="#" class="small" data-value="option1" tabIndex="-1"><input type="checkbox"/>&nbsp;Option 1</a></li> {% endcomment %}
+                            <li><a href="#" class="small" data-value="option1" tabIndex="-1"><input type="checkbox"/>&nbsp;Option 1</a></li>
                         </ul>
                     </div>
                 </div>
             </div>
         </div>
-        {% comment %} <form class = "form" action="/entry" method="entry">
-            {% csrf_token %}
-            {{ form }}
-            <button class="form-submit">Add Post </button>
-        </form> {% endcomment %}
     </div>
 
-{% endblock %}
+{% endblock %} {% endcomment %}
