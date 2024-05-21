@@ -3,7 +3,7 @@ from datetime import datetime
 from django.db import models
 from django_neomodel import DjangoNode 
 from neomodel import StringProperty, DateTimeProperty, UniqueIdProperty, RelationshipTo, RelationshipFrom, AliasProperty, StructuredRel
-from neomodel.cardinality import OneOrMore, ZeroOrOne
+from neomodel.sync_.cardinality import OneOrMore, ZeroOrOne
 
 
 class Library(models.Model):
