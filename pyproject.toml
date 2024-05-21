@@ -13,12 +13,10 @@ authors = [
     {name = "Robin Edwards", email = "robin.ge@gmail.com"},
 ]
 maintainers = [
-    {name = "Athanasios Anastasiou", email = "athanastasiou@gmail.com"},
-    {name = "Cristina Escalante"},
     {name = "Marius Conjeaud", email = "marius.conjeaud@outlook.com"},
 ]
 description = "Use Neo4j with Django!"
-readme = "README.rst"
+readme = "README.md"
 requires-python = ">=3.7"
 keywords = ["graph", "neo4j", "django", "plugin", "neomodel"]
 license = {text = "MIT"}
@@ -33,10 +31,10 @@ classifiers = [
     "Topic :: Database",
 ]
 dependencies = [
-    "neomodel~=5.1.0",
+    "neomodel~=5.3.0",
     'django>=2.2'
 ]
-version='0.1.1'
+version='0.1.2'
 
 [project.urls]
 repository = "http://github.com/robinedwards/django-neomodel"
