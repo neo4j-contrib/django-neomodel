@@ -9,31 +9,33 @@ SITE_ID = 300
 
 DEBUG = True
 
-ROOT_URLCONF = 'tests.urls'
-SECRET_KEY = 'skskqlqlaskdsd'
+ROOT_URLCONF = "tests.urls"
+SECRET_KEY = "skskqlqlaskdsd"
 
 AUTOCOMMIT = True
 
 
 DATABASES = {
-    'default': {
-        'NAME': 'test.db',
-        'ENGINE': 'django.db.backends.sqlite3',
-        'USER': '',
-        'PASSWORD': '',
-        'PORT': '',
+    "default": {
+        "NAME": "test.db",
+        "ENGINE": "django.db.backends.sqlite3",
+        "USER": "",
+        "PASSWORD": "",
+        "PORT": "",
     },
 }
 
-NEOMODEL_NEO4J_BOLT_URL = os.environ.get('NEO4J_BOLT_URL', 'bolt://neo4j:foobar@localhost:7687')
+NEOMODEL_NEO4J_BOLT_URL = os.environ.get(
+    "NEO4J_BOLT_URL", "bolt://neo4j:foobarbaz@localhost:7687"
+)
 NEOMODEL_SIGNALS = True
 NEOMODEL_FORCE_TIMEZONE = False
 NEOMODEL_MAX_CONNECTION_POOL_SIZE = 50
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'APP_DIRS': True,
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
@@ -47,23 +49,21 @@ TEMPLATES = [
 
 INSTALLED_APPS = [
     # Django
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.sites',
-    'django.contrib.staticfiles',
-
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.sites",
+    "django.contrib.staticfiles",
     # Third party
-    'django_neomodel',
-
+    "django_neomodel",
     # Test
-    'tests.someapp',
+    "tests.someapp",
 ]
 
 USE_TZ = True
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -71,5 +71,6 @@ MIDDLEWARE = [
 ]
 
 STATIC_ROOT = "./static/"
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

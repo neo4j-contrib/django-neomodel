@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+
+[tool.setuptools.packages.find]
+where = ["./"]
+
+[project]
+name = "django_neomodel"
+authors = [{name = "Robin Edwards", email = "robin.ge@gmail.com"}]
+maintainers = [{name = "Marius Conjeaud", email = "marius.conjeaud@outlook.com"}]
+description = "Use Neo4j with Django!"
+readme = "README.md"
+requires-python = ">=3.7"
+keywords = ["graph", "neo4j", "django", "plugin", "neomodel"]
+license = { text = "MIT" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    'Intended Audience :: Developers',
+    'Operating System :: OS Independent',
+    'License :: OSI Approved :: MIT License',
+    'Programming Language :: Python',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+    "Programming Language :: Python :: 3",
+    "Topic :: Database",
+]
+dependencies = [
+    "neomodel~=5.3.0",
+    'django>=2.2'
+]
+version='0.1.2'
+
+[project.urls]
+repository = "http://github.com/robinedwards/django-neomodel"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.1",
+    "pytest-django>=4.5.2",
+    "pytest-cov>=4.0",
+]
+
+[tool.pytest.ini_options]
+addopts = "--ds=tests.settings"
+testpaths = "tests"
