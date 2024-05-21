@@ -9,17 +9,13 @@ where = ["./"]
 
 [project]
 name = "django_neomodel"
-authors = [
-    {name = "Robin Edwards", email = "robin.ge@gmail.com"},
-]
-maintainers = [
-    {name = "Marius Conjeaud", email = "marius.conjeaud@outlook.com"},
-]
+authors = [{name = "Robin Edwards", email = "robin.ge@gmail.com"}]
+maintainers = [{name = "Marius Conjeaud", email = "marius.conjeaud@outlook.com"}]
 description = "Use Neo4j with Django!"
 readme = "README.md"
 requires-python = ">=3.7"
 keywords = ["graph", "neo4j", "django", "plugin", "neomodel"]
-license = {text = "MIT"}
+license = { text = "MIT" }
 classifiers = [
     "Development Status :: 4 - Beta",
     'Intended Audience :: Developers',

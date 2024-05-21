@@ -1,32 +1,25 @@
-Django Neomodel (beta!)
-=======================
+# Django Neomodel (beta!)
 
-.. image:: https://raw.githubusercontent.com/robinedwards/neomodel/master/doc/source/_static/neomodel-300.png
-   :alt: neomodel
+![neomodel](https://raw.githubusercontent.com/neo4j-contrib/neomodel/master/doc/source/_static/neomodel-300.png)
 
-This module allows you to use the neo4j_ graph database with Django using neomodel_
+This module allows you to use the [neo4j](https://www.neo4j.org) graph database with Django using [neomodel](http://neomodel.readthedocs.org)
 
-.. _neo4j: https://www.neo4j.org
-.. _neomodel: http://neomodel.readthedocs.org
 
-Warnings
-=======================
+## Warnings
 
-* Admin functionality is very experimental. `Please see todos / issues here <https://github.com/neo4j-contrib/django-neomodel/projects/1>`_
+* Admin functionality is very experimental. [Please see todos / issues here](https://github.com/neo4j-contrib/django-neomodel/projects/1)
 
-Live Examples (add yours here)
-===============================
+## Live Examples (add yours here)
 
-* `ResoTrack <https://resotrack.herokuapp.com/>`_
+* [ResoTrack](https://resotrack.herokuapp.com/)
 
-Getting started
-===============
+# Getting started
 
-Install the module::
+Install the module:
 
     $ pip install django_neomodel
 
-Add the following settings to your `settings.py`::
+Add the following settings to your `settings.py`:
 
     NEOMODEL_NEO4J_BOLT_URL = os.environ.get('NEO4J_BOLT_URL', 'bolt://neo4j:foobarbaz@localhost:7687')
 
@@ -37,7 +30,7 @@ Add the following settings to your `settings.py`::
         'yourapp'
     )
 
-Write your first node definition in `yourapp/models.py`::
+Write your first node definition in `yourapp/models.py`:
 
     from neomodel import StructuredNode, StringProperty, DateProperty
 
@@ -46,18 +39,18 @@ Write your first node definition in `yourapp/models.py`::
         published = DateProperty()
 
 Create any constraints or indexes for your labels. This needs to be done after you change your node definitions
-much like `manage.py migrate`::
+much like `manage.py migrate`:
 
     $ python manage.py install_labels
 
-Now in a view `yourapp/views.py`::
+Now in a view `yourapp/views.py`:
 
     from .models import Book
 
     def get_books(request):
         return render('yourapp/books.html', request, {'books': Book.nodes.all()})
 
-In your `yourapp/admin.py`::
+In your `yourapp/admin.py`:
 
     from django_neomodel import admin as neo_admin
     from .models import Book
@@ -68,10 +61,9 @@ In your `yourapp/admin.py`::
 
 And you're ready to go. Don't forget to check the neomodel_ documentation.
 
-Model forms
-===========
+## Model forms
 
-Switch the base class from `StructuredNode` to `DjangoNode` and add a 'Meta' class::
+Switch the base class from `StructuredNode` to `DjangoNode` and add a 'Meta' class:
 
     from datetime import datetime
     from django_neomodel import DjangoNode
@@ -90,7 +82,7 @@ Switch the base class from `StructuredNode` to `DjangoNode` and add a 'Meta' cla
         class Meta:
             app_label = 'library'
 
-Create a model form class for your `DjangoNode`::
+Create a model form class for your `DjangoNode`:
 
     class BookForm(ModelForm):
         class Meta:
@@ -99,19 +91,17 @@ Create a model form class for your `DjangoNode`::
 
 This class may now be used just like any other Django form.
 
-Settings
-========
+## Settings
 The following config options are available in django settings (default values shown).
-These are mapped to neomodel.config as django is started::
+These are mapped to neomodel.config as django is started:
 
     NEOMODEL_NEO4J_BOLT_URL = 'bolt://neo4j:neo4j@localhost:7687'
     NEOMODEL_SIGNALS = True
     NEOMODEL_FORCE_TIMEZONE = False
     NEOMODEL_MAX_CONNECTION_POOL_SIZE = 50
 
-Signals
-=======
-Signals work with `DjangoNode` sub-classes::
+## Signals
+Signals work with `DjangoNode` sub-classes:
 
     from django.db.models import signals
     from django_neomodel import DjangoNode
@@ -128,10 +118,9 @@ Signals work with `DjangoNode` sub-classes::
 The following are supported: `pre_save`, `post_save`, `pre_delete`, `post_delete`.
 On freshly created nodes `created=True` in the `post_save` signal argument.
 
-Testing
-=======
+## Testing
 
-You can create a setup method which clears the database before executing each test::
+You can create a setup method which clears the database before executing each test:
 
     from neomodel import db, clear_neo4j_database
 
@@ -142,14 +131,12 @@ You can create a setup method which clears the database before executing each te
         def test_something(self):
             pass
 
-Management Commands
-===================
+## Management Commands
 
 The following django management commands have been included.
 
-install_labels
---------------
-Setup constraints and indexes on labels for your node definitions. This should be executed after any schema changes::
+### install_labels
+Setup constraints and indexes on labels for your node definitions. This should be executed after any schema changes:
 
     $ python manage.py install_labels
     Setting up labels and constraints...
@@ -158,27 +145,19 @@ Setup constraints and indexes on labels for your node definitions. This should b
     + Creating unique constraint for title on label Book for class tests.someapp.models.Book
     Finished 1 class(es).
 
-clear_neo4j
------------
+### clear_neo4j
 Delete all nodes in your database, warning there is no confirmation!
 
-Requirements
-============
+## Requirements
 
 - Python 3.7+
 - neo4j 5.x, 4.4 (LTS)
 
-.. image:: https://badges.gitter.im/Join%20Chat.svg
-   :alt: Join the chat at https://gitter.im/robinedwards/neomodel
-   :target: https://gitter.im/robinedwards/neomodel?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
-
-Docker Example
-===================
-
+## Docker Example
 
 Using Docker Compose.
 
-Commands to setup Docker Container docker-entrypoint.sh::
+Commands to setup Docker Container docker-entrypoint.sh:
 
     # Go to tests
     $ cd tests/
@@ -191,12 +170,11 @@ Go to http://localhost:7474/browser/
 Go to http://localhost:8000/admin/
 
 
-Running Tests
-===================
+## Running Tests
 
 Setup Neo4j Desktop with a local database with password 'foobarbaz' and version 5.x or 4.4.x (Neo4j LTS version).
 
-Commands to run tests::
+Commands to run tests:
 
     # create local venv and install dependencies.
     $ pip install -e '.[dev]'; export DJANGO_SETTINGS_MODULE=tests.settings;
