@@ -28,7 +28,7 @@ classifiers = [
 ]
 dependencies = [
     "neomodel~=5.3.0",
-    'django>=2.2'
+    'django~=4.0'
 ]
 version='0.1.2'
 
