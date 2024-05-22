@@ -150,7 +150,7 @@ Delete all nodes in your database, warning there is no confirmation!
 
 ## Requirements
 
-- Python 3.7+
+- Python 3.8+
 - neo4j 5.x, 4.4 (LTS)
 
 ## Docker Example
