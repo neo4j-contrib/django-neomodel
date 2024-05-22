@@ -8,15 +8,15 @@ from django.db.models.options import Options
 from django.core.exceptions import ValidationError
 
 from neomodel import RequiredProperty, DeflateError, StructuredNode, UniqueIdProperty
-from neomodel.core import NodeMeta
-from neomodel.match import NodeSet
+from neomodel.sync_.core import NodeMeta
+from neomodel.sync_.match import NodeSet
 
 
 __author__ = "Robin Edwards"
 __email__ = "robin.ge@gmail.com"
 __license__ = "MIT"
 __package__ = "django_neomodel"
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 
 
 default_app_config = "django_neomodel.apps.NeomodelConfig"
