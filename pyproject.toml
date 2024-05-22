@@ -30,7 +30,7 @@ dependencies = [
     "neomodel~=5.3.0",
     'django>=4.2.8'
 ]
-version='0.1.2'
+version='0.2.0'
 
 [project.urls]
 repository = "http://github.com/robinedwards/django-neomodel"
