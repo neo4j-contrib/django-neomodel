@@ -1,16 +1,15 @@
 from functools import total_ordering
 
+from django.conf import settings
+from django.core import validators
+from django.core.exceptions import ValidationError
 from django.db.models import signals
 from django.db.models.fields import BLANK_CHOICE_DASH
-from django.conf import settings
-from django.forms import fields as form_fields
 from django.db.models.options import Options
-from django.core.exceptions import ValidationError
-
-from neomodel import RequiredProperty, DeflateError, StructuredNode, UniqueIdProperty
+from django.forms import fields as form_fields
+from neomodel import DeflateError, RequiredProperty, StructuredNode, UniqueIdProperty
 from neomodel.sync_.core import NodeMeta
 from neomodel.sync_.match import NodeSet
-
 
 __author__ = "Robin Edwards"
 __email__ = "robin.ge@gmail.com"
@@ -46,6 +45,7 @@ class DjangoField(object):
     unique = False
     primary_key = False
     auto_created = False
+    empty_values = list(validators.EMPTY_VALUES)
 
     def __init__(self, prop, name):
         self.prop = prop
